@@ -1,0 +1,127 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>GRID R15</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Pretendard:wght@400;500;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <div class="app-shell">
+      <aside class="sidebar">
+        <div class="logo" id="logoText">GRID R15_QA Report</div>
+
+        <div class="sprint-box">
+          <p class="label">Sprint</p>
+          <p class="sprint-name" id="sprintName">GME 7.18.0</p>
+          <p class="period" id="sidebarPeriod">2026.04.20 - 2026.05.11</p>
+        </div>
+
+        <nav class="menu" id="menuNav">
+          <p class="menu-title">OVERVIEW</p>
+          <button class="menu-item active" data-view="dashboard">Dashboard</button>
+          <button class="menu-item" data-view="issueList">Issue List</button>
+          <button class="menu-item" data-view="analysis">Analysis</button>
+          <p class="menu-title report-title">REPORT</p>
+          <button class="menu-item" data-view="qaOpinion">QA Opinion</button>
+        </nav>
+      </aside>
+
+      <main class="content">
+        <header class="content-header">
+          <div>
+            <p class="badge" id="versionBadge">GME 7.18.0</p>
+            <h1 id="title">QA Sprint Report - GRID R15</h1>
+            <p class="header-sub" id="subtitle">2026.04.20 ~ 2026.05.11 | QA Part</p>
+          </div>
+        </header>
+
+        <section class="kpi-grid">
+          <article class="card kpi-card">
+            <p class="kpi-label">Total Issues</p>
+            <p class="kpi-value" id="kpiTotal">37</p>
+            <p class="kpi-sub">All issues collected in current scope</p>
+          </article>
+          <article class="card kpi-card">
+            <p class="kpi-label">Resolved</p>
+            <p class="kpi-value" id="kpiResolved">31</p>
+            <p class="kpi-sub"><span id="kpiResolveRate">84%</span> fixed</p>
+          </article>
+          <article class="card kpi-card">
+            <p class="kpi-label">Critical Issues</p>
+            <p class="kpi-value" id="kpiCritical">6</p>
+            <p class="kpi-sub">Highest + High</p>
+          </article>
+          <article class="card kpi-card">
+            <p class="kpi-label">QA Period</p>
+            <p class="kpi-value" id="kpiDays">21d</p>
+            <p class="kpi-sub"><span id="periodStart">2026-04-20</span> - <span id="periodEnd">2026-05-11</span></p>
+          </article>
+        </section>
+
+        <section class="mid-grid" id="midGrid">
+          <article class="card donut-card">
+            <h2>Test Environment</h2>
+            <div class="donut-layout">
+              <div class="donut" id="envDonut"><span>ENV</span></div>
+              <ul class="legend" id="envLegend"></ul>
+            </div>
+          </article>
+          <article class="card donut-card">
+            <h2>QA Status</h2>
+            <div class="donut-layout">
+              <div class="donut" id="qaDonut"><span>QA</span></div>
+              <ul class="legend" id="qaLegend"></ul>
+            </div>
+          </article>
+        </section>
+
+        <section class="bottom-grid" id="bottomGrid">
+          <article class="card compare-card">
+            <div class="section-head">
+              <h2>Sprint Comparison</h2>
+              <span class="chip" id="compareTarget">vs GME 7.17.0</span>
+            </div>
+            <div class="mini-grid" id="compareGrid"></div>
+          </article>
+
+          <article class="card assignee-card">
+            <h2>Assignee Insights</h2>
+            <div class="assignee-list" id="assigneeList"></div>
+          </article>
+        </section>
+
+        <section class="card issue-table-card hidden" id="issueTableSection">
+          <div class="section-head">
+            <h2>Issue List</h2>
+            <span class="chip" id="issueTableCount">0 items</span>
+          </div>
+          <div class="table-wrap">
+            <table class="issue-table">
+              <thead>
+                <tr>
+                  <th>No</th>
+                  <th>Impact Level</th>
+                  <th>Platform</th>
+                  <th>Issue Status</th>
+                  <th>Occurrence version</th>
+                  <th>Modified version</th>
+                  <th>Title</th>
+                </tr>
+              </thead>
+              <tbody id="issueTableBody"></tbody>
+            </table>
+          </div>
+        </section>
+      </main>
+    </div>
+
+    <script src="./script.js"></script>
+  </body>
+</html>

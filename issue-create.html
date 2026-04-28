@@ -1,0 +1,81 @@
+﻿<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Create Issue - GRID R15</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Pretendard:wght@400;500;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <main class="create-page">
+      <section class="card create-card">
+        <div class="section-head jira-head">
+          <h2>Create Issue</h2>
+          <a class="entry-btn secondary" href="./index.html#issueList">Back to List</a>
+        </div>
+        <form id="issueCreateForm" class="jira-form">
+          <label class="jira-label">Summary (Title) *</label>
+          <input class="jira-input" name="title" placeholder="Enter summary" required />
+
+          <div class="jira-grid">
+            <div>
+              <label class="jira-label">Component (Impact Level) *</label>
+              <select class="jira-input" name="impactLevel" required>
+                <option value="High">High</option>
+                <option value="Medium">Medium</option>
+                <option value="Low">Low</option>
+              </select>
+            </div>
+            <div>
+              <label class="jira-label">Issue Status *</label>
+              <select class="jira-input" name="issueStatus" required>
+                <option value="Open">Open</option>
+                <option value="Closed">Closed</option>
+              </select>
+            </div>
+            <div>
+              <label class="jira-label">Platform *</label>
+              <select class="jira-input" name="platform" required>
+                <option value="Feature Phone">Feature Phone</option>
+                <option value="Smart Phone">Smart Phone</option>
+                <option value="Dispatcher">Dispatcher</option>
+              </select>
+            </div>
+          </div>
+
+          <label class="jira-label">Occurrence version *</label>
+          <input class="jira-input" name="occurrenceVersion" placeholder="e.g. v1.1.7.0" required />
+
+          <label class="jira-label">Modified version</label>
+          <input class="jira-input" name="modifiedVersion" placeholder="e.g. v1.1.8.0" />
+
+          <label class="jira-label">Description *</label>
+          <textarea class="jira-input jira-textarea" name="description" required>+ Step :
+
++ Actual Result :
+
++ Expected Result :
+
++ note :</textarea>
+
+          <label class="jira-label">Attachment (Image/Video)</label>
+          <input class="jira-input" id="attachmentInput" name="attachments" type="file" accept="image/*,video/*" multiple />
+          <div id="attachmentHint" class="attachment-hint">?좏깮???뚯씪???놁뼱??</div>
+
+          <div class="jira-actions">
+            <a class="entry-btn secondary" href="./index.html#issueList">Cancel</a>
+            <button class="entry-btn" type="submit">Create</button>
+          </div>
+        </form>
+      </section>
+    </main>
+    <script src="./issue-create.js"></script>
+  </body>
+</html>
+

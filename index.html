@@ -1,4 +1,4 @@
-<!doctype html>
+﻿<!doctype html>
 <html lang="ko">
   <head>
     <meta charset="UTF-8" />
@@ -16,13 +16,6 @@
     <div class="app-shell">
       <aside class="sidebar">
         <div class="logo" id="logoText">GRID R15_QA Report</div>
-
-        <div class="sprint-box">
-          <p class="label">Sprint</p>
-          <p class="sprint-name" id="sprintName">GME 7.18.0</p>
-          <p class="period" id="sidebarPeriod">2026.04.20 - 2026.05.11</p>
-        </div>
-
         <nav class="menu" id="menuNav">
           <p class="menu-title">OVERVIEW</p>
           <button class="menu-item active" data-view="dashboard">Dashboard</button>
@@ -43,26 +36,52 @@
         </header>
 
         <section class="kpi-grid">
-          <article class="card kpi-card">
-            <p class="kpi-label">Total Issues</p>
-            <p class="kpi-value" id="kpiTotal">37</p>
-            <p class="kpi-sub">All issues collected in current scope</p>
+          <article class="card kpi-card" id="kpiCard1">
+            <p class="kpi-label" id="kpiLabel1">Total Issues</p>
+            <p class="kpi-value" id="kpiValue1">37</p>
+            <p class="kpi-sub" id="kpiSub1">All issues collected in current scope</p>
           </article>
-          <article class="card kpi-card">
-            <p class="kpi-label">Resolved</p>
-            <p class="kpi-value" id="kpiResolved">31</p>
-            <p class="kpi-sub"><span id="kpiResolveRate">84%</span> fixed</p>
+          <article class="card kpi-card" id="kpiCard2">
+            <p class="kpi-label" id="kpiLabel2">Resolved</p>
+            <p class="kpi-value" id="kpiValue2">31</p>
+            <p class="kpi-sub" id="kpiSub2">84% fixed</p>
           </article>
-          <article class="card kpi-card">
-            <p class="kpi-label">Critical Issues</p>
-            <p class="kpi-value" id="kpiCritical">6</p>
-            <p class="kpi-sub">Highest + High</p>
+          <article class="card kpi-card" id="kpiCard3" data-impact-target="high">
+            <p class="kpi-label" id="kpiLabel3">Critical Issues</p>
+            <p class="kpi-value" id="kpiValue3">6</p>
+            <p class="kpi-sub" id="kpiSub3">Highest + High</p>
           </article>
-          <article class="card kpi-card">
-            <p class="kpi-label">QA Period</p>
-            <p class="kpi-value" id="kpiDays">21d</p>
-            <p class="kpi-sub"><span id="periodStart">2026-04-20</span> - <span id="periodEnd">2026-05-11</span></p>
+          <article class="card kpi-card" id="kpiCard4" data-impact-target="medium">
+            <p class="kpi-label" id="kpiLabel4">QA Period</p>
+            <p class="kpi-value" id="kpiValue4">21d</p>
+            <p class="kpi-sub" id="kpiSub4">2026-04-20 - 2026-05-11</p>
           </article>
+          <article class="card kpi-card" id="kpiCard5" data-impact-target="low">
+            <p class="kpi-label" id="kpiLabel5">Resolve Rate</p>
+            <p class="kpi-value" id="kpiValue5">84%</p>
+            <p class="kpi-sub" id="kpiSub5">Resolved / Total</p>
+          </article>
+          <article class="card kpi-card platform-kpi" id="kpiCard6">
+            <p class="kpi-label" id="kpiLabel6">Feature Phone</p>
+            <p class="kpi-value" id="kpiValue6">0</p>
+            <p class="kpi-sub" id="kpiSub6">Platform count</p>
+          </article>
+          <article class="card kpi-card platform-kpi" id="kpiCard7">
+            <p class="kpi-label" id="kpiLabel7">Smart Phone</p>
+            <p class="kpi-value" id="kpiValue7">0</p>
+            <p class="kpi-sub" id="kpiSub7">Platform count</p>
+          </article>
+          <article class="card kpi-card platform-kpi" id="kpiCard8">
+            <p class="kpi-label" id="kpiLabel8">Dispatcher</p>
+            <p class="kpi-value" id="kpiValue8">0</p>
+            <p class="kpi-sub" id="kpiSub8">Platform count</p>
+          </article>
+        </section>
+
+        <section class="list-search hidden" id="listSearchSection">
+          <input id="issueSearchInput" class="jira-input" placeholder="Search issues (title, platform, status, version)" />
+          <button id="issueSearchBtn" class="entry-btn" type="button">Search</button>
+          <button id="issueSearchResetBtn" class="entry-btn secondary" type="button">Reset</button>
         </section>
 
         <section class="mid-grid" id="midGrid">
@@ -90,7 +109,6 @@
             </div>
             <div class="mini-grid" id="compareGrid"></div>
           </article>
-
           <article class="card assignee-card">
             <h2>Assignee Insights</h2>
             <div class="assignee-list" id="assigneeList"></div>
@@ -102,26 +120,74 @@
             <h2>Issue List</h2>
             <span class="chip" id="issueTableCount">0 items</span>
           </div>
+          <div class="issue-actions">
+            <a class="entry-btn" href="./issue-create.html">Add Issue</a>
+            <button class="entry-btn secondary" id="exportExcelBtn" type="button">Export Excel</button>
+          </div>
           <div class="table-wrap">
             <table class="issue-table">
               <thead>
                 <tr>
                   <th>No</th>
-                  <th>Impact Level</th>
-                  <th>Platform</th>
-                  <th>Issue Status</th>
+                  <th>
+                    <div class="th-sort">
+                      <span>Impact Level</span>
+                      <div class="th-sort-actions">
+                        <button class="sort-arrow-btn" data-sort-field="impactLevel" data-sort-dir="asc">&#9650;</button>
+                        <button class="sort-arrow-btn" data-sort-field="impactLevel" data-sort-dir="desc">&#9660;</button>
+                      </div>
+                    </div>
+                  </th>
+                  <th>
+                    <div class="th-sort">
+                      <span>Platform</span>
+                      <div class="th-sort-actions">
+                        <button class="sort-arrow-btn" data-sort-field="platform" data-sort-dir="asc">&#9650;</button>
+                        <button class="sort-arrow-btn" data-sort-field="platform" data-sort-dir="desc">&#9660;</button>
+                      </div>
+                    </div>
+                  </th>
+                  <th>
+                    <div class="th-sort">
+                      <span>Issue Status</span>
+                      <div class="th-sort-actions">
+                        <button class="sort-arrow-btn" data-sort-field="issueStatus" data-sort-dir="asc">&#9650;</button>
+                        <button class="sort-arrow-btn" data-sort-field="issueStatus" data-sort-dir="desc">&#9660;</button>
+                      </div>
+                    </div>
+                  </th>
                   <th>Occurrence version</th>
                   <th>Modified version</th>
+                  <th>Attachment</th>
                   <th>Title</th>
+                  <th>Delete</th>
                 </tr>
               </thead>
               <tbody id="issueTableBody"></tbody>
             </table>
           </div>
+
+          <div class="impact-sections">
+            <article class="card impact-card" id="highSection">
+              <div class="section-head"><h3>High</h3><span class="chip" id="highCount">0 items</span></div>
+              <ul class="impact-list" id="highList"></ul>
+            </article>
+            <article class="card impact-card" id="mediumSection">
+              <div class="section-head"><h3>Medium</h3><span class="chip" id="mediumCount">0 items</span></div>
+              <ul class="impact-list" id="mediumList"></ul>
+            </article>
+            <article class="card impact-card" id="lowSection">
+              <div class="section-head"><h3>Low</h3><span class="chip" id="lowCount">0 items</span></div>
+              <ul class="impact-list" id="lowList"></ul>
+            </article>
+          </div>
         </section>
       </main>
     </div>
 
+    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
     <script src="./script.js"></script>
   </body>
 </html>
+
+

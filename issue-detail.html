@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Issue Detail - GRID R15</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Pretendard:wght@400;500;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <main class="create-page">
+      <section class="card create-card">
+        <div class="section-head jira-head">
+          <h2>Edit Issue</h2>
+          <a class="entry-btn secondary" href="./index.html#issueList">Back to List</a>
+        </div>
+        <form id="issueDetailForm" class="jira-form">
+          <label class="jira-label">Summary (Title) *</label>
+          <input class="jira-input" name="title" required />
+
+          <div class="jira-grid">
+            <div>
+              <label class="jira-label">Component (Impact Level) *</label>
+              <select class="jira-input" name="impactLevel" required>
+                <option value="High">High</option>
+                <option value="Medium">Medium</option>
+                <option value="Low">Low</option>
+              </select>
+            </div>
+            <div>
+              <label class="jira-label">Issue Status *</label>
+              <select class="jira-input" name="issueStatus" required>
+                <option value="Open">Open</option>
+                <option value="Closed">Closed</option>
+              </select>
+            </div>
+            <div>
+              <label class="jira-label">Platform *</label>
+              <select class="jira-input" name="platform" required>
+                <option value="Feature Phone">Feature Phone</option>
+                <option value="Smart Phone">Smart Phone</option>
+                <option value="Dispatcher">Dispatcher</option>
+              </select>
+            </div>
+          </div>
+
+          <label class="jira-label">Occurrence version *</label>
+          <input class="jira-input" name="occurrenceVersion" required />
+
+          <label class="jira-label">Modified version</label>
+          <input class="jira-input" name="modifiedVersion" />
+
+          <label class="jira-label">Description *</label>
+          <textarea class="jira-input jira-textarea" name="description" required></textarea>
+
+          <div class="jira-actions">
+            <a class="entry-btn secondary" href="./index.html#issueList">Cancel</a>
+            <button class="entry-btn" type="submit">Save</button>
+          </div>
+        </form>
+      </section>
+    </main>
+    <script src="./issue-detail.js"></script>
+  </body>
+</html>

@@ -132,7 +132,7 @@ h1 {
 .kpi-grid {
   margin-top: 24px;
   display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
+  grid-template-columns: repeat(5, minmax(0, 1fr));
   gap: 14px;
 }
 
@@ -163,6 +163,22 @@ h1 {
 .kpi-sub {
   margin: 0;
   color: var(--muted);
+}
+
+.platform-kpi {
+  margin-top: 6px;
+}
+
+#kpiCard6 {
+  grid-column: 1;
+}
+
+#kpiCard7 {
+  grid-column: 2;
+}
+
+#kpiCard8 {
+  grid-column: 3;
 }
 
 .mid-grid {
@@ -246,6 +262,18 @@ h2 {
 
 .hidden {
   display: none !important;
+}
+
+.list-search {
+  margin-top: 12px;
+  display: flex;
+  gap: 8px;
+  justify-content: flex-end;
+  align-items: center;
+}
+
+.list-search .jira-input {
+  width: min(560px, 100%);
 }
 
 .section-head {
@@ -360,6 +388,49 @@ h2 {
   padding: 20px 24px;
 }
 
+.issue-entry-card {
+  margin-bottom: 12px;
+  padding: 14px;
+  background: #121d2f;
+}
+
+.issue-actions {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.issue-form {
+  margin-top: 10px;
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.issue-form input,
+.issue-form select {
+  background: #0f1726;
+  color: #d9e7fb;
+  border: 1px solid #2a3a54;
+  border-radius: 8px;
+  padding: 10px;
+}
+
+.entry-btn {
+  background: #1f5aa0;
+  color: #e6f2ff;
+  border: 1px solid #3d74b6;
+  border-radius: 8px;
+  padding: 10px 12px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.entry-btn.secondary {
+  background: #1a2941;
+  border-color: #314767;
+}
+
 .table-wrap {
   width: 100%;
   overflow-x: auto;
@@ -397,9 +468,199 @@ h2 {
   background: #18263e;
 }
 
+.issue-link {
+  color: #8fc0ff;
+  text-decoration: none;
+  border-bottom: 1px dashed rgba(143, 192, 255, 0.45);
+}
+
+.issue-link:hover {
+  color: #c6e0ff;
+  border-bottom-color: rgba(198, 224, 255, 0.85);
+}
+
+.attachment-link {
+  color: #9dd2ff;
+  text-decoration: none;
+  font-size: 12px;
+}
+
+.attachment-link:hover {
+  text-decoration: underline;
+}
+
+.th-sort {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.th-sort-actions {
+  display: inline-flex;
+  gap: 4px;
+}
+
+.sort-arrow-btn {
+  width: 20px;
+  height: 20px;
+  padding: 0;
+  border: 1px solid #324766;
+  border-radius: 5px;
+  background: #1a2941;
+  color: #a8bddc;
+  font-size: 10px;
+  cursor: pointer;
+  line-height: 1;
+}
+
+.sort-arrow-btn.active {
+  border-color: #4c83c8;
+  background: #1b3a62;
+  color: #cfe6ff;
+}
+
+.delete-btn {
+  border: 1px solid #6a2e3a;
+  background: #3a1d26;
+  color: #ffc8d1;
+  border-radius: 8px;
+  padding: 6px 10px;
+  cursor: pointer;
+}
+
+.delete-btn:hover {
+  background: #512233;
+}
+
+.impact-sections {
+  display: grid;
+  gap: 12px;
+  margin-top: 14px;
+}
+
+.impact-card {
+  padding: 14px;
+  background: #121d2f;
+}
+
+h3 {
+  margin: 0;
+  font-size: 18px;
+}
+
+.impact-list {
+  margin: 10px 0 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: 8px;
+}
+
+.impact-item {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  gap: 8px;
+  align-items: center;
+  background: #17253a;
+  border: 1px solid #253a58;
+  border-radius: 10px;
+  padding: 10px;
+}
+
+.impact-no {
+  color: #a6bbd8;
+  font-size: 12px;
+}
+
+.impact-meta {
+  color: #89a0c2;
+  font-size: 12px;
+}
+
+.create-page {
+  min-height: 100vh;
+  display: grid;
+  place-items: center;
+  padding: 24px;
+}
+
+.create-card {
+  width: min(1100px, 100%);
+  padding: 20px;
+}
+
+.create-form {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.jira-head h2 {
+  margin: 0;
+  color: #e8eefb;
+  font-size: 28px;
+}
+
+.jira-form {
+  margin-top: 10px;
+}
+
+.jira-label {
+  display: block;
+  margin: 14px 0 8px;
+  color: #9db0cb;
+  font-weight: 700;
+  font-size: 13px;
+}
+
+.jira-input {
+  width: 100%;
+  border: 1px solid #2a3a54;
+  border-radius: 6px;
+  background: #0f1726;
+  color: #d9e7fb;
+  padding: 11px 12px;
+  font-size: 14px;
+}
+
+.jira-input:focus {
+  outline: none;
+  border-color: #3f8cff;
+  box-shadow: 0 0 0 2px rgba(63, 140, 255, 0.15);
+}
+
+.jira-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.jira-textarea {
+  min-height: 180px;
+  resize: vertical;
+}
+
+.jira-actions {
+  margin-top: 18px;
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+.attachment-hint {
+  margin-top: 8px;
+  color: #8fa2bf;
+  font-size: 12px;
+}
+
 @media (max-width: 1400px) {
   .kpi-grid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+
+  #kpiCard6,
+  #kpiCard7,
+  #kpiCard8 {
+    grid-column: auto;
   }
 
   .bottom-grid {
@@ -437,7 +698,7 @@ h2 {
   }
 
   .kpi-grid {
-    grid-template-columns: 1fr;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
   .donut-layout {
@@ -447,5 +708,36 @@ h2 {
 
   h1 {
     font-size: 27px;
+  }
+
+  .issue-form {
+    grid-template-columns: 1fr;
+  }
+
+  .issue-actions {
+    flex-direction: column;
+  }
+
+  .list-search {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .list-search .jira-input {
+    width: 100%;
+  }
+
+  .create-form {
+    grid-template-columns: 1fr;
+  }
+
+  .jira-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 420px) {
+  .kpi-grid {
+    grid-template-columns: 1fr;
   }
 }

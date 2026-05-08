@@ -34,10 +34,11 @@
             </div>
             <div>
               <label class="jira-label">Issue Status *</label>
-              <select class="jira-input" name="issueStatus" required>
-                <option value="Open">Open</option>
-                <option value="Closed">Closed</option>
-              </select>
+              <div class="status-check-group">
+                <label class="status-option open"><input type="checkbox" name="issueStatusMulti" value="Open" /> Open</label>
+                <label class="status-option closed"><input type="checkbox" name="issueStatusMulti" value="Closed" /> Closed</label>
+                <label class="status-option resolved"><input type="checkbox" name="issueStatusMulti" value="Resolved" /> Resolved</label>
+              </div>
             </div>
             <div>
               <label class="jira-label">Platform *</label>

@@ -28,7 +28,6 @@ if (!current) {
 
 form.elements.title.value = current.title || "";
 form.elements.impactLevel.value = current.impactLevel || "Medium";
-form.elements.issueStatus.value = current.issueStatus || "Open";
 form.elements.platform.value = current.platform || "Dispatcher";
 form.elements.occurrenceVersion.value = current.occurrenceVersion || "";
 form.elements.modifiedVersion.value = current.modifiedVersion || "";
@@ -36,16 +35,31 @@ form.elements.description.value =
   current.description ||
   `+ Step :\n\n+ Actual Result :\n\n+ Expected Result :\n\n+ note :`;
 
+const statusSet = new Set(
+  String(current.issueStatus || "Open")
+    .split(",")
+    .map((s) => s.trim())
+    .filter(Boolean),
+);
+Array.from(form.querySelectorAll('input[name="issueStatusMulti"]')).forEach((el) => {
+  el.checked = statusSet.has(el.value);
+});
+
 form.addEventListener("submit", (event) => {
   event.preventDefault();
   const fd = new FormData(form);
+  const statuses = Array.from(form.querySelectorAll('input[name="issueStatusMulti"]:checked')).map((el) => el.value);
+  if (!statuses.length) {
+    alert("Issue Status를 최소 1개 선택해 주세요.");
+    return;
+  }
   const updated = rows.map((row) => {
     if (String(row.rowKey) !== String(rowKey)) return row;
     return {
       ...row,
       title: String(fd.get("title") || "").trim(),
       impactLevel: String(fd.get("impactLevel") || "Medium"),
-      issueStatus: String(fd.get("issueStatus") || "Open"),
+      issueStatus: statuses.join(", "),
       platform: String(fd.get("platform") || "Dispatcher"),
       occurrenceVersion: String(fd.get("occurrenceVersion") || ""),
       modifiedVersion: String(fd.get("modifiedVersion") || ""),

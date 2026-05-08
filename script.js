@@ -693,6 +693,7 @@ const dashboardData = {
 let currentView = "dashboard";
 const issueSortState = { field: null, dir: null };
 const ISSUE_STORAGE_KEY = "grid_r15_issue_rows";
+const ISSUE_ORDER_REVERSED_KEY = "grid_r15_issue_order_reversed_v1";
 let issueSearchQuery = "";
 
 function toKoreanDate(isoDate) {
@@ -774,7 +775,7 @@ function renderAssignees(el, assignees) {
 
 function getIssuePriority(field, value) {
   const table = {
-    issueStatus: { open: 1, closed: 2 },
+    issueStatus: { open: 1, closed: 2, resolved: 2 },
     impactLevel: { high: 1, medium: 2, low: 3 },
     platform: { "feature phone": 1, "smart phone": 2, dispatcher: 3 },
   };
@@ -782,14 +783,22 @@ function getIssuePriority(field, value) {
   return table[field]?.[normalized] ?? 999;
 }
 
+function parseStatuses(value) {
+  return String(value || "")
+    .split(",")
+    .map((s) => s.trim())
+    .filter(Boolean);
+}
+
+function hasStatus(value, target) {
+  return parseStatuses(value)
+    .map((s) => s.toLowerCase())
+    .includes(String(target).toLowerCase());
+}
+
 function sortIssueRows(rows) {
   if (!issueSortState.field || !issueSortState.dir) {
-    return [...rows].sort((a, b) => {
-      const aTime = a.createdAt ? Date.parse(a.createdAt) : 0;
-      const bTime = b.createdAt ? Date.parse(b.createdAt) : 0;
-      if (aTime !== bTime) return bTime - aTime;
-      return (b.no || 0) - (a.no || 0);
-    });
+    return [...rows].sort((a, b) => (a.no || 0) - (b.no || 0));
   }
 
   const sorted = [...rows].sort((a, b) => {
@@ -826,7 +835,7 @@ function renderIssueTable(rows) {
         <td>${row.no}</td>
         <td>${row.impactLevel}</td>
         <td>${row.platform}</td>
-        <td>${row.issueStatus}</td>
+        <td>${renderIssueStatusBadge(row.issueStatus, escapeHtml)}</td>
         <td>${row.occurrenceVersion}</td>
         <td>${row.modifiedVersion}</td>
         <td>${renderAttachmentCell(row, escapeHtml)}</td>
@@ -839,6 +848,22 @@ function renderIssueTable(rows) {
   document.getElementById("issueTableCount").textContent = `${sortedRows.length} items`;
   syncSortArrowState();
   renderImpactSections(sortedRows, escapeHtml);
+}
+
+function renderIssueStatusBadge(status, escapeHtml) {
+  const statuses = parseStatuses(status);
+  if (!statuses.length) return `<span class="status-badges"><span class="status-badge">-</span></span>`;
+  const chips = statuses
+    .map((s) => {
+      const key = s.toLowerCase();
+      let cls = "status-badge";
+      if (key === "closed") cls += " closed";
+      else if (key === "open") cls += " open";
+      else if (key === "resolved") cls += " resolved";
+      return `<span class="${cls}">${escapeHtml(s)}</span>`;
+    })
+    .join("");
+  return `<span class="status-badges">${chips}</span>`;
 }
 
 function renderAttachmentCell(row, escapeHtml) {
@@ -937,20 +962,20 @@ function renderDashboard(baseData, viewKey) {
   if (viewKey === "issueList") {
     const rows = data.issueRows || [];
     const total = rows.length;
-    const closed = rows.filter((r) => String(r.issueStatus).toLowerCase() === "closed").length;
+    const closed = rows.filter((r) => hasStatus(r.issueStatus, "closed") || hasStatus(r.issueStatus, "resolved")).length;
     const high = rows.filter(
       (r) =>
-        String(r.issueStatus).toLowerCase() === "open" &&
+        hasStatus(r.issueStatus, "open") &&
         String(r.impactLevel).toLowerCase() === "high",
     ).length;
     const medium = rows.filter(
       (r) =>
-        String(r.issueStatus).toLowerCase() === "open" &&
+        hasStatus(r.issueStatus, "open") &&
         String(r.impactLevel).toLowerCase() === "medium",
     ).length;
     const low = rows.filter(
       (r) =>
-        String(r.issueStatus).toLowerCase() === "open" &&
+        hasStatus(r.issueStatus, "open") &&
         String(r.impactLevel).toLowerCase() === "low",
     ).length;
     const featurePhone = rows.filter((r) => String(r.platform).toLowerCase() === "feature phone").length;
@@ -958,7 +983,7 @@ function renderDashboard(baseData, viewKey) {
     const dispatcher = rows.filter((r) => String(r.platform).toLowerCase() === "dispatcher").length;
     setKpiCards([
       { label: "Total Issues", value: total, sub: "All imported issues" },
-      { label: "Closed", value: closed, sub: "Issue Status = Closed" },
+      { label: "Closed", value: closed, sub: "Issue Status = Closed + Resolved" },
       { label: "High", value: high, sub: "Open + Impact Level = High" },
       { label: "Medium", value: medium, sub: "Open + Impact Level = Medium" },
       { label: "Low", value: low, sub: "Open + Impact Level = Low" },
@@ -999,29 +1024,43 @@ function ensureRowKeys(rows) {
   return rows.map((row, idx) => ({
     ...row,
     rowKey: row.rowKey || `${row.no || idx + 1}_${row.date || ""}_${idx}`,
+    issueStatus: String(row.issueStatus || "").trim().toLowerCase() === "closed" ? "Closed, Resolved" : row.issueStatus,
+  }));
+}
+
+function resequenceRows(rows) {
+  return rows.map((row, idx) => ({
+    ...row,
+    no: idx + 1,
   }));
 }
 
 function setIssueRows(rows) {
-  const normalized = ensureRowKeys(rows);
+  const normalized = resequenceRows(ensureRowKeys(rows));
   dashboardData.views.issueList.issueRows = normalized;
   localStorage.setItem(ISSUE_STORAGE_KEY, JSON.stringify(normalized));
 }
 
 function hydrateIssueRows() {
   const raw = localStorage.getItem(ISSUE_STORAGE_KEY);
+  let rows;
   if (!raw) {
-    setIssueRows(getIssueRows());
-    return;
-  }
-  try {
-    const parsed = JSON.parse(raw);
-    if (Array.isArray(parsed) && parsed.length) {
-      setIssueRows(parsed);
+    rows = getIssueRows();
+  } else {
+    try {
+      const parsed = JSON.parse(raw);
+      rows = Array.isArray(parsed) && parsed.length ? parsed : getIssueRows();
+    } catch (_) {
+      rows = getIssueRows();
     }
-  } catch (_) {
-    setIssueRows(getIssueRows());
   }
+
+  if (localStorage.getItem(ISSUE_ORDER_REVERSED_KEY) !== "1") {
+    rows = [...rows].reverse();
+    localStorage.setItem(ISSUE_ORDER_REVERSED_KEY, "1");
+  }
+
+  setIssueRows(rows);
 }
 
 function setupMenu(baseData) {

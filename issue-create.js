@@ -41,9 +41,13 @@ document.getElementById("issueCreateForm").addEventListener("submit", async (eve
   const form = event.currentTarget;
   const fd = new FormData(form);
   const rows = loadRows();
-  const nextNo = rows.reduce((max, row) => Math.max(max, Number(row.no) || 0), 0) + 1;
   const rowKey = `${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
   const files = Array.from(attachmentInput.files || []);
+  const statuses = Array.from(form.querySelectorAll('input[name="issueStatusMulti"]:checked')).map((el) => el.value);
+  if (!statuses.length) {
+    alert("Issue Status를 최소 1개 선택해 주세요.");
+    return;
+  }
   const attachments = await Promise.all(
     files.map(async (file) => ({
       name: file.name,
@@ -52,12 +56,12 @@ document.getElementById("issueCreateForm").addEventListener("submit", async (eve
     })),
   );
 
-  rows.push({
+  rows.unshift({
     rowKey,
     createdAt: new Date().toISOString(),
-    no: nextNo,
+    no: 1,
     date: "",
-    issueStatus: String(fd.get("issueStatus") || "Open"),
+    issueStatus: statuses.join(", "),
     impactLevel: String(fd.get("impactLevel") || "Medium"),
     platform: String(fd.get("platform") || "Dispatcher"),
     occurrenceVersion: String(fd.get("occurrenceVersion") || ""),
@@ -68,6 +72,10 @@ document.getElementById("issueCreateForm").addEventListener("submit", async (eve
     attachments,
   });
 
-  saveRows(rows);
+  const resequenced = rows.map((row, idx) => ({
+    ...row,
+    no: idx + 1,
+  }));
+  saveRows(resequenced);
   window.location.href = "./index.html#issueList";
 });

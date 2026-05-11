@@ -1127,8 +1127,8 @@ function setupExportExcel() {
       "Issue Status": row.issueStatus,
       "Impact Level": row.impactLevel,
       Platform: row.platform,
-      "Occurrence version": row.occurrenceVersion,
-      "Modified version": row.modifiedVersion,
+      "Affected Version": row.occurrenceVersion,
+      "Fixed Version": row.modifiedVersion,
       Title: row.title,
       URL: row.issueUrl || "",
     }));
@@ -1136,7 +1136,177 @@ function setupExportExcel() {
     const ws = XLSX.utils.json_to_sheet(sheetRows);
     const wb = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(wb, ws, "IssueList");
-    XLSX.writeFile(wb, "GRID_IssueList.xlsx");
+    const today = new Date().toISOString().slice(0, 10);
+    XLSX.writeFile(wb, `GRID_IssueList_${today}.xlsx`);
+  });
+}
+
+function normalizeHeader(text) {
+  return String(text || "")
+    .toLowerCase()
+    .replace(/\s+/g, "")
+    .replace(/[._-]/g, "");
+}
+
+function pickByHeader(row, headerMap, keys) {
+  for (const key of keys) {
+    const hit = headerMap.get(normalizeHeader(key));
+    if (hit) return row[hit];
+  }
+  return "";
+}
+
+function normalizeImpactLevel(value) {
+  const v = String(value || "").trim().toLowerCase();
+  if (v === "high") return "High";
+  if (v === "low") return "Low";
+  return "Medium";
+}
+
+function normalizePlatform(value) {
+  const v = String(value || "").trim().toLowerCase();
+  if (v.includes("feature")) return "Feature Phone";
+  if (v.includes("smart")) return "Smart Phone";
+  if (v.includes("dispatcher") || v.includes("pc")) return "Dispatcher";
+  return "Dispatcher";
+}
+
+function normalizeStatuses(value) {
+  const raw = String(value || "");
+  const pieces = raw
+    .split(/[,\|/]/)
+    .map((s) => s.trim())
+    .filter(Boolean);
+  const out = [];
+  pieces.forEach((p) => {
+    const key = p.toLowerCase();
+    if (key === "open" && !out.includes("Open")) out.push("Open");
+    if (key === "closed" && !out.includes("Closed")) out.push("Closed");
+    if (key === "resolved" && !out.includes("Resolved")) out.push("Resolved");
+  });
+  if (!out.length) return "Open";
+  return out.join(", ");
+}
+
+function parseImportedIssueRows(jsonRows) {
+  if (!Array.isArray(jsonRows) || !jsonRows.length) return [];
+  const sample = jsonRows[0] || {};
+  const headerMap = new Map(
+    Object.keys(sample).map((k) => [normalizeHeader(k), k]),
+  );
+
+  return jsonRows
+    .map((row, idx) => {
+      const no = pickByHeader(row, headerMap, ["no", "number"]);
+      const impactLevel = pickByHeader(row, headerMap, ["impactlevel", "impact", "component"]);
+      const platform = pickByHeader(row, headerMap, ["platform"]);
+      const issueStatus = pickByHeader(row, headerMap, ["issuestatus", "status"]);
+      const occurrenceVersion = pickByHeader(row, headerMap, ["affectedversion", "occurrenceversion", "occurrence", "version", "occurredversion"]);
+      const modifiedVersion = pickByHeader(row, headerMap, ["fixedversion", "modifiedversion", "modified", "fixversion"]);
+      const title = pickByHeader(row, headerMap, ["title", "summary", "issue", "descriptiontitle"]);
+      const description = pickByHeader(row, headerMap, ["description"]);
+
+      if (!String(title || "").trim()) return null;
+      return {
+        rowKey: `${Date.now()}_${idx}_${Math.random().toString(36).slice(2, 8)}`,
+        no: Number(no) || idx + 1,
+        date: "",
+        issueStatus: normalizeStatuses(issueStatus),
+        impactLevel: normalizeImpactLevel(impactLevel),
+        platform: normalizePlatform(platform),
+        occurrenceVersion: String(occurrenceVersion || "").trim(),
+        modifiedVersion: String(modifiedVersion || "").trim(),
+        title: String(title || "").trim(),
+        description: String(description || "").trim(),
+        issueUrl: "",
+        attachments: [],
+        createdAt: new Date().toISOString(),
+      };
+    })
+    .filter(Boolean);
+}
+
+function issueSignature(row) {
+  const norm = (v) => String(v || "").trim().toLowerCase();
+  return [
+    norm(row.title),
+    norm(row.platform),
+    norm(row.occurrenceVersion),
+  ].join("||");
+}
+
+function setupImportExcel() {
+  const importBtn = document.getElementById("importExcelBtn");
+  const importInput = document.getElementById("importExcelInput");
+  if (!importBtn || !importInput) return;
+
+  importBtn.addEventListener("click", () => importInput.click());
+
+  importInput.addEventListener("change", async () => {
+    const file = importInput.files?.[0];
+    if (!file) return;
+
+    try {
+      const mode = window.prompt("Import mode: type 'replace' to overwrite, or 'append' to add to current list.", "append");
+      if (!mode) return;
+      const normalizedMode = String(mode).trim().toLowerCase();
+      if (normalizedMode !== "replace" && normalizedMode !== "append") {
+        alert("Please type only 'replace' or 'append'.");
+        return;
+      }
+
+      const data = await file.arrayBuffer();
+      const workbook = XLSX.read(data, { type: "array" });
+      const sheetName = workbook.SheetNames[0];
+      const worksheet = workbook.Sheets[sheetName];
+      const jsonRows = XLSX.utils.sheet_to_json(worksheet, { defval: "" });
+      const imported = parseImportedIssueRows(jsonRows);
+
+      if (!imported.length) {
+        alert("No valid issue rows found. Please check your header names and data.");
+        return;
+      }
+
+      const beforeCount = getIssueRows().length;
+      let nextRows;
+      if (normalizedMode === "replace") {
+        nextRows = imported;
+      } else {
+        const existingRows = getIssueRows();
+        const existingSet = new Set(existingRows.map(issueSignature));
+        const uniqueImported = [];
+        const importedSet = new Set();
+
+        imported.forEach((row) => {
+          const sig = issueSignature(row);
+          if (existingSet.has(sig)) return;
+          if (importedSet.has(sig)) return;
+          importedSet.add(sig);
+          uniqueImported.push(row);
+        });
+
+        nextRows = [...uniqueImported, ...existingRows];
+      }
+
+      setIssueRows(nextRows);
+      issueSortState.field = null;
+      issueSortState.dir = null;
+      issueSearchQuery = "";
+      renderDashboard(dashboardData, "issueList");
+      const addedCount =
+        normalizedMode === "replace"
+          ? imported.length
+          : Math.max(0, nextRows.length - beforeCount);
+      alert(
+        normalizedMode === "replace"
+          ? `Imported ${addedCount} issues successfully (replace mode).`
+          : `Imported ${addedCount} new issues successfully (duplicates skipped).`,
+      );
+    } catch (error) {
+      alert("Import failed. Please check the file format.");
+    } finally {
+      importInput.value = "";
+    }
   });
 }
 
@@ -1170,6 +1340,7 @@ setupKpiScroll();
 hydrateIssueRows();
 setupIssueDelete();
 setupExportExcel();
+setupImportExcel();
 setupIssueSearch(dashboardData);
 if (window.location.hash === "#issueList") {
   renderDashboard(dashboardData, "issueList");

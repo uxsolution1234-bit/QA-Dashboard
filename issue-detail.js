@@ -1,4 +1,4 @@
-const ISSUE_STORAGE_KEY = "grid_r15_issue_rows";
+﻿const ISSUE_STORAGE_KEY = "grid_r15_issue_rows";
 
 function loadRows() {
   const raw = localStorage.getItem(ISSUE_STORAGE_KEY);
@@ -18,6 +18,12 @@ function saveRows(rows) {
 const params = new URLSearchParams(window.location.search);
 const rowKey = params.get("rowKey");
 const form = document.getElementById("issueDetailForm");
+const editToggleBtn = document.getElementById("editToggleBtn");
+const saveBtn = document.getElementById("saveBtn");
+const cancelBtn = document.getElementById("cancelBtn");
+const descriptionPreview = document.getElementById("descriptionPreview");
+const attachmentPreviewList = document.getElementById("attachmentPreviewList");
+
 const rows = loadRows();
 const current = rows.find((r) => String(r.rowKey) === String(rowKey));
 
@@ -45,14 +51,79 @@ Array.from(form.querySelectorAll('input[name="issueStatusMulti"]')).forEach((el)
   el.checked = statusSet.has(el.value);
 });
 
+function setFormMode(isEditMode) {
+  form.classList.toggle("detail-preview-mode", !isEditMode);
+
+  Array.from(form.elements).forEach((el) => {
+    if (el.name === "description") return;
+    if (el.type === "submit") return;
+    el.disabled = !isEditMode;
+  });
+
+  form.elements.description.classList.toggle("hidden", !isEditMode);
+  descriptionPreview.classList.toggle("hidden", isEditMode);
+  saveBtn.classList.toggle("hidden", !isEditMode);
+  editToggleBtn.classList.toggle("hidden", isEditMode);
+  cancelBtn.textContent = isEditMode ? "Cancel Edit" : "Back to List";
+
+  const statusOptions = Array.from(form.querySelectorAll(".status-check-group .status-option"));
+  statusOptions.forEach((label) => {
+    const input = label.querySelector('input[name="issueStatusMulti"]');
+    if (!input) return;
+    label.classList.toggle("hidden", !isEditMode && !input.checked);
+  });
+}
+
+function renderDescriptionPreview() {
+  descriptionPreview.textContent = form.elements.description.value || "-";
+}
+
+function renderAttachmentPreview(row) {
+  const files = Array.isArray(row.attachments) ? row.attachments : [];
+  if (!files.length) {
+    attachmentPreviewList.innerHTML = '<p class="attachment-empty">No attachment</p>';
+    return;
+  }
+
+  attachmentPreviewList.innerHTML = files
+    .map((file, idx) => {
+      const isImage = String(file.type || "").startsWith("image/");
+      const isVideo = String(file.type || "").startsWith("video/");
+      const name = file.name || `attachment-${idx + 1}`;
+      const src = file.dataUrl || "#";
+
+      let media = '<div class="attachment-generic">Preview unavailable</div>';
+      if (isImage) media = `<img class="attachment-media" src="${src}" alt="${name}" />`;
+      if (isVideo) media = `<video class="attachment-media" src="${src}" controls preload="metadata"></video>`;
+
+      return `
+        <article class="attachment-preview-item">
+          <p class="attachment-title">${name}</p>
+          ${media}
+          <a class="entry-btn secondary attachment-download" href="${src}" download="${name}">Download</a>
+        </article>
+      `;
+    })
+    .join("");
+}
+
+editToggleBtn.addEventListener("click", () => {
+  setFormMode(true);
+});
+
+renderDescriptionPreview();
+renderAttachmentPreview(current);
+setFormMode(false);
+
 form.addEventListener("submit", (event) => {
   event.preventDefault();
   const fd = new FormData(form);
   const statuses = Array.from(form.querySelectorAll('input[name="issueStatusMulti"]:checked')).map((el) => el.value);
   if (!statuses.length) {
-    alert("Issue Status를 최소 1개 선택해 주세요.");
+    alert("Please select at least one Issue Status.");
     return;
   }
+
   const updated = rows.map((row) => {
     if (String(row.rowKey) !== String(rowKey)) return row;
     return {
@@ -67,6 +138,7 @@ form.addEventListener("submit", (event) => {
       updatedAt: new Date().toISOString(),
     };
   });
+
   saveRows(updated);
-  window.location.href = "./index.html#issueList";
+  window.location.href = `./issue-detail.html?rowKey=${encodeURIComponent(String(rowKey || ""))}`;
 });

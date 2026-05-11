@@ -18,8 +18,8 @@
         <div class="logo" id="logoText">GRID R15_QA Report</div>
         <nav class="menu" id="menuNav">
           <p class="menu-title">OVERVIEW</p>
-          <button class="menu-item active" data-view="dashboard">Dashboard</button>
           <button class="menu-item" data-view="issueList">Issue List</button>
+          <button class="menu-item active" data-view="dashboard">Dashboard</button>
           <button class="menu-item" data-view="analysis">Analysis</button>
           <p class="menu-title report-title">REPORT</p>
           <button class="menu-item" data-view="qaOpinion">QA Opinion</button>
@@ -122,7 +122,9 @@
           </div>
           <div class="issue-actions">
             <a class="entry-btn" href="./issue-create.html">Add Issue</a>
-            <button class="entry-btn secondary" id="exportExcelBtn" type="button">Export Excel</button>
+            <button class="entry-btn secondary" id="exportExcelBtn" type="button">Download Issue List</button>
+            <button class="entry-btn secondary" id="importExcelBtn" type="button">Upload Excel/CSV</button>
+            <input id="importExcelInput" type="file" accept=".xlsx,.xls,.csv" class="hidden" />
           </div>
           <div class="table-wrap">
             <table class="issue-table">
@@ -156,8 +158,8 @@
                       </div>
                     </div>
                   </th>
-                  <th>Occurrence version</th>
-                  <th>Modified version</th>
+                  <th>Affected Version</th>
+                  <th>Fixed Version</th>
                   <th>Attachment</th>
                   <th>Title</th>
                   <th>Delete</th>

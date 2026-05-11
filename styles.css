@@ -635,6 +635,11 @@ h3 {
   font-size: 28px;
 }
 
+.detail-head-actions {
+  display: flex;
+  gap: 8px;
+}
+
 .jira-form {
   margin-top: 10px;
 }
@@ -643,8 +648,9 @@ h3 {
   display: block;
   margin: 14px 0 8px;
   color: #9db0cb;
-  font-weight: 700;
-  font-size: 13px;
+  font-weight: 800;
+  font-size: 16px;
+  letter-spacing: 0.1px;
 }
 
 .jira-input {
@@ -663,6 +669,21 @@ h3 {
   box-shadow: 0 0 0 2px rgba(63, 140, 255, 0.15);
 }
 
+.detail-preview-mode .jira-input:disabled {
+  border: 0;
+  background: transparent;
+  padding: 0;
+  border-radius: 0;
+  color: #d9e7fb;
+  box-shadow: none;
+}
+
+.detail-preview-mode select.jira-input:disabled {
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+}
+
 .status-check-group {
   display: flex;
   gap: 12px;
@@ -679,6 +700,16 @@ h3 {
   display: inline-flex;
   align-items: center;
   gap: 6px;
+}
+
+.detail-preview-mode .status-check-group {
+  border: 0;
+  background: transparent;
+  padding: 0;
+}
+
+.detail-preview-mode .status-check-group input[type="checkbox"] {
+  display: none;
 }
 
 .status-option {
@@ -716,6 +747,19 @@ h3 {
   resize: vertical;
 }
 
+.jira-preview {
+  margin: 0;
+  padding: 0;
+  min-height: 180px;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  color: #d9e7fb;
+  white-space: pre-wrap;
+  font-family: "Pretendard", sans-serif;
+  line-height: 1.5;
+}
+
 .jira-actions {
   margin-top: 18px;
   display: flex;
@@ -727,6 +771,51 @@ h3 {
   margin-top: 8px;
   color: #8fa2bf;
   font-size: 12px;
+}
+
+.attachment-preview-list {
+  display: grid;
+  gap: 10px;
+}
+
+.attachment-preview-item {
+  border: 1px solid #253a58;
+  border-radius: 10px;
+  background: #121d2f;
+  padding: 12px;
+}
+
+.attachment-title {
+  margin: 0 0 8px;
+  color: #c8d5ea;
+  font-weight: 600;
+}
+
+.attachment-media {
+  width: 100%;
+  max-height: 360px;
+  object-fit: contain;
+  border: 1px solid #2a3a54;
+  border-radius: 8px;
+  background: #0d1422;
+}
+
+.attachment-generic {
+  border: 1px dashed #3a4f71;
+  border-radius: 8px;
+  padding: 12px;
+  color: #9db0cb;
+}
+
+.attachment-download {
+  margin-top: 10px;
+  display: inline-block;
+  text-decoration: none;
+}
+
+.attachment-empty {
+  margin: 0;
+  color: #8fa2bf;
 }
 
 @media (max-width: 1400px) {

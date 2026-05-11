@@ -16,8 +16,11 @@
     <main class="create-page">
       <section class="card create-card">
         <div class="section-head jira-head">
-          <h2>Edit Issue</h2>
-          <a class="entry-btn secondary" href="./index.html#issueList">Back to List</a>
+          <h2>Issue Detail</h2>
+          <div class="detail-head-actions">
+            <button id="editToggleBtn" class="entry-btn" type="button">Edit</button>
+            <a class="entry-btn secondary" href="./index.html#issueList">Back to List</a>
+          </div>
         </div>
         <form id="issueDetailForm" class="jira-form">
           <label class="jira-label">Summary (Title) *</label>
@@ -50,18 +53,22 @@
             </div>
           </div>
 
-          <label class="jira-label">Occurrence version *</label>
+          <label class="jira-label">Affected Version *</label>
           <input class="jira-input" name="occurrenceVersion" required />
 
-          <label class="jira-label">Modified version</label>
+          <label class="jira-label">Fixed Version</label>
           <input class="jira-input" name="modifiedVersion" />
 
           <label class="jira-label">Description *</label>
-          <textarea class="jira-input jira-textarea" name="description" required></textarea>
+          <pre id="descriptionPreview" class="jira-preview"></pre>
+          <textarea class="jira-input jira-textarea hidden" name="description" required></textarea>
+
+          <label class="jira-label">Attachments</label>
+          <div id="attachmentPreviewList" class="attachment-preview-list"></div>
 
           <div class="jira-actions">
-            <a class="entry-btn secondary" href="./index.html#issueList">Cancel</a>
-            <button class="entry-btn" type="submit">Save</button>
+            <a id="cancelBtn" class="entry-btn secondary" href="./index.html#issueList">Cancel</a>
+            <button id="saveBtn" class="entry-btn hidden" type="submit">Save</button>
           </div>
         </form>
       </section>

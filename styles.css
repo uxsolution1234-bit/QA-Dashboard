@@ -650,13 +650,16 @@ h2 {
   font-size: 12px;
   font-weight: 700;
   border: 1px solid transparent;
+  text-align: center;
 }
 
 .status-badge.removable {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
-  padding-right: 6px;
+  justify-content: center;
+  position: relative;
+  min-width: 72px;
+  padding-right: 10px;
 }
 
 .status-remove-btn {
@@ -673,6 +676,10 @@ h2 {
   border-radius: 50%;
   display: inline-grid;
   place-items: center;
+  position: absolute;
+  right: 4px;
+  top: 50%;
+  transform: translateY(-50%);
 }
 
 .status-badge.removable:hover .status-remove-btn {
@@ -687,12 +694,10 @@ h2 {
   white-space: nowrap;
 }
 
-.issue-table tbody td.status-cell {
+.status-badge.removable > span {
+  display: inline-block;
+  width: 100%;
   text-align: center;
-}
-
-.issue-table tbody td.status-cell .status-badges {
-  justify-content: center;
 }
 
 .status-badge.closed {

@@ -995,7 +995,7 @@ function renderIssueTable(rows) {
         <td>${escapeHtml(getRegistrationDateText(row))}</td>
         <td>${renderImpactLevelCell(row.impactLevel, escapeHtml)}</td>
         <td>${renderPlatformBadge(row.platform, escapeHtml)}</td>
-        <td class="status-cell">${renderIssueStatusBadge(row.issueStatus, escapeHtml, rowKey, true)}</td>
+        <td>${renderIssueStatusBadge(row.issueStatus, escapeHtml, rowKey, true)}</td>
         <td>${row.occurrenceVersion}</td>
         <td>${row.modifiedVersion}</td>
         <td>${renderAttachmentCell(row, escapeHtml)}</td>

@@ -15,11 +15,11 @@
   <body>
     <div class="app-shell">
       <aside class="sidebar">
-        <div class="logo" id="logoText">GRID R15_QA Report</div>
+        <div class="logo" id="logoText">QA_Report</div>
         <nav class="menu" id="menuNav">
           <p class="menu-title">OVERVIEW</p>
-          <button class="menu-item" data-view="issueList">Issue List</button>
           <button class="menu-item active" data-view="dashboard">Dashboard</button>
+          <button class="menu-item" data-view="issueList">Issue List</button>
           <button class="menu-item" data-view="analysis">Analysis</button>
           <p class="menu-title report-title">REPORT</p>
           <button class="menu-item" data-view="qaOpinion">QA Opinion</button>
@@ -29,9 +29,14 @@
       <main class="content">
         <header class="content-header">
           <div>
-            <p class="badge" id="versionBadge">GME 7.18.0</p>
+            <div class="badge-dropdown-wrap">
+              <select class="badge-select" id="versionBadge" aria-label="Project">
+                <option value="GRID R15">GRID R15</option>
+                <option value="Compact 고도화">Compact 고도화</option>
+              </select>
+            </div>
             <h1 id="title">QA Sprint Report - GRID R15</h1>
-            <p class="header-sub" id="subtitle">2026.04.20 ~ 2026.05.11 | QA Part</p>
+            <p class="header-sub hidden" id="subtitle"></p>
           </div>
         </header>
 
@@ -122,6 +127,7 @@
           </div>
           <div class="issue-actions">
             <a class="entry-btn" href="./issue-create.html">Add Issue</a>
+            <button class="entry-btn danger-btn" id="deleteSelectedBtn" type="button">Delete Selected</button>
             <button class="entry-btn secondary" id="exportExcelBtn" type="button">Download Issue List</button>
             <button class="entry-btn secondary" id="importExcelBtn" type="button">Upload Excel/CSV</button>
             <input id="importExcelInput" type="file" accept=".xlsx,.xls,.csv" class="hidden" />
@@ -130,6 +136,7 @@
             <table class="issue-table">
               <thead>
                 <tr>
+                  <th><input type="checkbox" id="issueCheckAll" aria-label="Select all issues" /></th>
                   <th>No</th>
                   <th>
                     <div class="th-sort">

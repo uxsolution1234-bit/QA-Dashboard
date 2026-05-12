@@ -1,7 +1,24 @@
-const ISSUE_STORAGE_KEY = "grid_r15_issue_rows";
+﻿const CURRENT_PROJECT_KEY = "grid_current_project";
+
+const PROJECT_STORAGE_KEYS = {
+  "GRID R15": "grid_r15_issue_rows",
+  "Compact 고도화": "compact_advanced_issue_rows",
+};
+
+function getCurrentProject() {
+  const params = new URLSearchParams(window.location.search);
+  const fromQuery = String(params.get("project") || "").trim();
+  const fromStorage = String(localStorage.getItem(CURRENT_PROJECT_KEY) || "").trim();
+  return fromQuery || fromStorage || "GRID R15";
+}
+
+function getIssueStorageKey() {
+  const project = getCurrentProject();
+  return PROJECT_STORAGE_KEYS[project] || `project_rows_${encodeURIComponent(project)}`;
+}
 
 function loadRows() {
-  const raw = localStorage.getItem(ISSUE_STORAGE_KEY);
+  const raw = localStorage.getItem(getIssueStorageKey());
   if (!raw) return [];
   try {
     const parsed = JSON.parse(raw);
@@ -12,7 +29,7 @@ function loadRows() {
 }
 
 function saveRows(rows) {
-  localStorage.setItem(ISSUE_STORAGE_KEY, JSON.stringify(rows));
+  localStorage.setItem(getIssueStorageKey(), JSON.stringify(rows));
 }
 
 function fileToDataUrl(file) {
@@ -30,10 +47,10 @@ const attachmentHint = document.getElementById("attachmentHint");
 attachmentInput.addEventListener("change", () => {
   const files = Array.from(attachmentInput.files || []);
   if (!files.length) {
-    attachmentHint.textContent = "선택한 파일이 없어요.";
+    attachmentHint.textContent = "No file selected";
     return;
   }
-  attachmentHint.textContent = `${files.length}개 파일 선택됨: ${files.map((f) => f.name).join(", ")}`;
+  attachmentHint.textContent = `${files.length} file(s): ${files.map((f) => f.name).join(", ")}`;
 });
 
 document.getElementById("issueCreateForm").addEventListener("submit", async (event) => {
@@ -44,10 +61,12 @@ document.getElementById("issueCreateForm").addEventListener("submit", async (eve
   const rowKey = `${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
   const files = Array.from(attachmentInput.files || []);
   const statuses = Array.from(form.querySelectorAll('input[name="issueStatusMulti"]:checked')).map((el) => el.value);
+
   if (!statuses.length) {
-    alert("Issue Status를 최소 1개 선택해 주세요.");
+    alert("Please select at least one Issue Status.");
     return;
   }
+
   const attachments = await Promise.all(
     files.map(async (file) => ({
       name: file.name,
@@ -76,6 +95,7 @@ document.getElementById("issueCreateForm").addEventListener("submit", async (eve
     ...row,
     no: idx + 1,
   }));
+
   saveRows(resequenced);
   window.location.href = "./index.html#issueList";
 });

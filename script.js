@@ -1,6 +1,6 @@
 ﻿const dashboardData = {
   browserTitle: "GRID R15",
-  logoText: "GRID R15_QA Report",
+  logoText: "QA_Report",
   sprint: "GME 7.18.0",
   start: "2026-04-20",
   end: "2026-05-11",
@@ -690,11 +690,32 @@
   },
 };
 
+const CURRENT_PROJECT_KEY = "grid_current_project";
 let currentView = "dashboard";
+let currentProject = String(localStorage.getItem(CURRENT_PROJECT_KEY) || "GRID R15");
 const issueSortState = { field: null, dir: null };
-const ISSUE_STORAGE_KEY = "grid_r15_issue_rows";
-const ISSUE_ORDER_REVERSED_KEY = "grid_r15_issue_order_reversed_v1";
+const INITIAL_GRID_R15_ROWS = JSON.parse(JSON.stringify(dashboardData.views.issueList.issueRows || []));
+const PROJECT_STORAGE_KEYS = {
+  "GRID R15": {
+    rows: "grid_r15_issue_rows",
+    orderFlag: "grid_r15_issue_order_reversed_v1",
+  },
+  "Compact 고도화": {
+    rows: "compact_advanced_issue_rows",
+    orderFlag: "compact_advanced_issue_order_reversed_v1",
+  },
+};
 let issueSearchQuery = "";
+const selectedIssueKeys = new Set();
+
+function getProjectStorageMeta(project = currentProject) {
+  return (
+    PROJECT_STORAGE_KEYS[project] || {
+      rows: `project_rows_${encodeURIComponent(project)}`,
+      orderFlag: `project_order_${encodeURIComponent(project)}`,
+    }
+  );
+}
 
 function toKoreanDate(isoDate) {
   return isoDate.replaceAll("-", ".");
@@ -718,6 +739,10 @@ function setKpiCards(cards) {
 
 function makeDonut(el, data) {
   const total = data.reduce((sum, item) => sum + item.value, 0);
+  if (total <= 0) {
+    el.style.background = "conic-gradient(#22324b 0% 100%)";
+    return;
+  }
   let cursor = 0;
   const stops = data.map((item) => {
     const start = (cursor / total) * 100;
@@ -732,7 +757,7 @@ function renderLegend(el, data) {
   const total = data.reduce((sum, item) => sum + item.value, 0);
   el.innerHTML = data
     .map((item) => {
-      const pct = Math.round((item.value / total) * 100);
+      const pct = total > 0 ? Math.round((item.value / total) * 100) : 0;
       return `<li><span class="dot" style="background:${item.color}"></span>${item.label} - ${item.value} cases (${pct}%)</li>`;
     })
     .join("");
@@ -753,7 +778,7 @@ function renderComparison(el, data) {
 }
 
 function renderAssignees(el, assignees) {
-  const max = Math.max(...assignees.map((a) => a.issues));
+  const max = Math.max(1, ...assignees.map((a) => a.issues));
   el.innerHTML = assignees
     .map((a) => {
       const width = Math.round((a.issues / max) * 100);
@@ -814,25 +839,25 @@ function buildDashboardWidgetsFromIssues(rows) {
 
   return {
     env: [
-      { label: "Feature Phone", value: platformCount["Feature Phone"] || 0, color: "#f4a259" },
-      { label: "Smart Phone", value: platformCount["Smart Phone"] || 0, color: "#3f8cff" },
-      { label: "Dispatcher", value: platformCount.Dispatcher || 0, color: "#9b8cff" },
+      { label: "피처폰", value: platformCount["Feature Phone"] || 0, color: "#f4a259" },
+      { label: "스마트폰", value: platformCount["Smart Phone"] || 0, color: "#3f8cff" },
+      { label: "디스패처", value: platformCount.Dispatcher || 0, color: "#9b8cff" },
     ],
     qaStatus: [
-      { label: "Open", value: statusCount.Open || 0, color: "#3f8cff" },
-      { label: "Closed", value: statusCount.Closed || 0, color: "#7f8ea3" },
-      { label: "Resolved", value: statusCount.Resolved || 0, color: "#30d58f" },
+      { label: "오픈", value: statusCount.Open || 0, color: "#3f8cff" },
+      { label: "클로즈", value: statusCount.Closed || 0, color: "#7f8ea3" },
+      { label: "해결", value: statusCount.Resolved || 0, color: "#30d58f" },
     ],
     comparison: [
-      { label: "Open Issues", value: openCount, diff: `${openCount} currently open`, positive: openCount === 0 },
-      { label: "Closed/Resolved", value: closedCount, diff: `${closedCount} completed`, positive: true },
-      { label: "High Impact", value: impactCount.High || 0, diff: `${impactCount.High || 0} high-priority issues`, positive: (impactCount.High || 0) === 0 },
-      { label: "Fixed Version Filled", value: fixedCount, diff: `${unfixedCount} without fixed version`, positive: unfixedCount === 0 },
+      { label: "오픈 이슈", value: openCount, diff: `현재 오픈 ${openCount}건`, positive: openCount === 0 },
+      { label: "클로즈/해결", value: closedCount, diff: `처리 완료 ${closedCount}건`, positive: true },
+      { label: "High 영향도", value: impactCount.High || 0, diff: `우선 확인 ${impactCount.High || 0}건`, positive: (impactCount.High || 0) === 0 },
+      { label: "Fixed Version 입력", value: fixedCount, diff: `미입력 ${unfixedCount}건`, positive: unfixedCount === 0 },
     ],
     assignees: [
-      { name: "High Impact", issues: impactCount.High || 0, color: "#ff6b6b", tags: [`Medium ${impactCount.Medium || 0}`, `Low ${impactCount.Low || 0}`] },
-      { name: "Medium Impact", issues: impactCount.Medium || 0, color: "#f7c948", tags: [`High ${impactCount.High || 0}`] },
-      { name: "Low Impact", issues: impactCount.Low || 0, color: "#30d58f", tags: [`Open ${openCount}`] },
+      { name: "High 영향도", issues: impactCount.High || 0, color: "#ff6b6b", tags: [`Medium ${impactCount.Medium || 0}`, `Low ${impactCount.Low || 0}`] },
+      { name: "Medium 영향도", issues: impactCount.Medium || 0, color: "#f7c948", tags: [`High ${impactCount.High || 0}`] },
+      { name: "Low 영향도", issues: impactCount.Low || 0, color: "#30d58f", tags: [`Open ${openCount}`] },
     ],
   };
 }
@@ -894,8 +919,12 @@ function renderIssueTable(rows) {
 
   body.innerHTML = sortedRows
     .map(
-      (row) => `
+      (row) => {
+        const rowKey = String(row.rowKey || "");
+        const checked = selectedIssueKeys.has(rowKey) ? "checked" : "";
+        return `
       <tr>
+        <td><input type="checkbox" class="issue-row-check" data-row-key="${escapeHtml(rowKey)}" ${checked} /></td>
         <td>${row.no}</td>
         <td>${row.impactLevel}</td>
         <td>${renderPlatformBadge(row.platform, escapeHtml)}</td>
@@ -903,15 +932,27 @@ function renderIssueTable(rows) {
         <td>${row.occurrenceVersion}</td>
         <td>${row.modifiedVersion}</td>
         <td>${renderAttachmentCell(row, escapeHtml)}</td>
-        <td><a class="issue-link" href="./issue-detail.html?rowKey=${encodeURIComponent(row.rowKey || "")}">${escapeHtml(row.title)}</a></td>
-        <td><button class="delete-btn" data-row-key="${escapeHtml(row.rowKey || "")}" type="button">Delete</button></td>
+        <td><a class="issue-link" href="./issue-detail.html?rowKey=${encodeURIComponent(rowKey)}&project=${encodeURIComponent(currentProject)}">${escapeHtml(row.title)}</a></td>
+        <td><button class="delete-btn" data-row-key="${escapeHtml(rowKey)}" type="button">Delete</button></td>
       </tr>
-    `,
+    `;
+      },
       )
     .join("");
   document.getElementById("issueTableCount").textContent = `${sortedRows.length} items`;
+  syncIssueCheckAllState();
   syncSortArrowState();
   renderImpactSections(sortedRows, escapeHtml);
+}
+
+function syncIssueCheckAllState() {
+  const checkAll = document.getElementById("issueCheckAll");
+  if (!checkAll) return;
+  const rowChecks = Array.from(document.querySelectorAll("#issueTableBody .issue-row-check"));
+  const total = rowChecks.length;
+  const checkedCount = rowChecks.filter((el) => el.checked).length;
+  checkAll.checked = total > 0 && checkedCount === total;
+  checkAll.indeterminate = checkedCount > 0 && checkedCount < total;
 }
 
 function renderPlatformBadge(platform, escapeHtml) {
@@ -1031,12 +1072,22 @@ function renderDashboard(baseData, viewKey) {
   const sidebarPeriodEl = document.getElementById("sidebarPeriod");
   if (sprintNameEl) sprintNameEl.textContent = baseData.sprint;
   if (sidebarPeriodEl) sidebarPeriodEl.textContent = `${startK} - ${endK}`;
-  document.getElementById("versionBadge").textContent = baseData.sprint;
-  document.getElementById("title").textContent = data.reportTitle;
+  const versionSelect = document.getElementById("versionBadge");
+  const projectLabel = currentProject || baseData.browserTitle || "GRID R15";
+  if (versionSelect && !Array.from(versionSelect.options).some((o) => o.value === projectLabel)) {
+    const opt = document.createElement("option");
+    opt.value = projectLabel;
+    opt.textContent = projectLabel;
+    versionSelect.appendChild(opt);
+  }
+  if (versionSelect) versionSelect.value = projectLabel;
+  localStorage.setItem(CURRENT_PROJECT_KEY, projectLabel);
+  document.getElementById("title").textContent = `QA Sprint Report - ${projectLabel}`;
   document.getElementById("subtitle").textContent = `${startK} ~ ${endK} | ${baseData.unit} | ${data.subtitleSuffix}`;
 
+  const rows = getIssueRows();
+
   if (viewKey === "issueList" || viewKey === "dashboard") {
-    const rows = baseData.views.issueList.issueRows || [];
     const total = rows.length;
     const closed = rows.filter((r) => hasStatus(r.issueStatus, "closed") || hasStatus(r.issueStatus, "resolved")).length;
     const high = rows.filter((r) => hasStatus(r.issueStatus, "open") && String(r.impactLevel).toLowerCase() === "high").length;
@@ -1073,17 +1124,16 @@ function renderDashboard(baseData, viewKey) {
     ]);
   }
 
-  const issueRows = baseData.views.issueList.issueRows || [];
-  const widgets = viewKey === "dashboard" ? buildDashboardWidgetsFromIssues(issueRows) : data;
+  const widgets = viewKey === "dashboard" ? buildDashboardWidgetsFromIssues(rows) : data;
 
   if (viewKey === "dashboard") {
-    document.getElementById("envCardTitle").textContent = "Platform Distribution";
-    document.getElementById("qaCardTitle").textContent = "Issue Status Distribution";
-    document.getElementById("compareCardTitle").textContent = "Issue Summary";
-    document.getElementById("assigneeCardTitle").textContent = "Impact Insights";
-    document.getElementById("envDonutLabel").textContent = "PLT";
-    document.getElementById("qaDonutLabel").textContent = "STS";
-    document.getElementById("compareTarget").textContent = "based on current Issue List";
+    document.getElementById("envCardTitle").textContent = "플랫폼 분포";
+    document.getElementById("qaCardTitle").textContent = "이슈 상태 분포";
+    document.getElementById("compareCardTitle").textContent = "이슈 요약";
+    document.getElementById("assigneeCardTitle").textContent = "영향도 인사이트";
+    document.getElementById("envDonutLabel").textContent = "플랫폼";
+    document.getElementById("qaDonutLabel").textContent = "상태";
+    document.getElementById("compareTarget").textContent = "현재 Issue List 기준";
   } else {
     document.getElementById("envCardTitle").textContent = "Test Environment";
     document.getElementById("qaCardTitle").textContent = "QA Status";
@@ -1100,7 +1150,7 @@ function renderDashboard(baseData, viewKey) {
   renderLegend(document.getElementById("qaLegend"), widgets.qaStatus);
   renderComparison(document.getElementById("compareGrid"), widgets.comparison);
   renderAssignees(document.getElementById("assigneeList"), widgets.assignees);
-  renderIssueTable(filterIssueRows(baseData.views.issueList.issueRows || []));
+  renderIssueTable(filterIssueRows(rows));
   toggleSections(viewKey);
   setActiveMenu(viewKey);
 }
@@ -1126,26 +1176,32 @@ function resequenceRows(rows) {
 function setIssueRows(rows) {
   const normalized = resequenceRows(ensureRowKeys(rows));
   dashboardData.views.issueList.issueRows = normalized;
-  localStorage.setItem(ISSUE_STORAGE_KEY, JSON.stringify(normalized));
+  const storageMeta = getProjectStorageMeta();
+  localStorage.setItem(storageMeta.rows, JSON.stringify(normalized));
+  const keySet = new Set(normalized.map((r) => String(r.rowKey || "")));
+  Array.from(selectedIssueKeys).forEach((key) => {
+    if (!keySet.has(key)) selectedIssueKeys.delete(key);
+  });
 }
 
 function hydrateIssueRows() {
-  const raw = localStorage.getItem(ISSUE_STORAGE_KEY);
+  const storageMeta = getProjectStorageMeta();
+  const raw = localStorage.getItem(storageMeta.rows);
   let rows;
   if (!raw) {
-    rows = getIssueRows();
+    rows = currentProject === "GRID R15" ? INITIAL_GRID_R15_ROWS : [];
   } else {
     try {
       const parsed = JSON.parse(raw);
-      rows = Array.isArray(parsed) && parsed.length ? parsed : getIssueRows();
+      rows = Array.isArray(parsed) ? parsed : [];
     } catch (_) {
-      rows = getIssueRows();
+      rows = currentProject === "GRID R15" ? INITIAL_GRID_R15_ROWS : [];
     }
   }
 
-  if (localStorage.getItem(ISSUE_ORDER_REVERSED_KEY) !== "1") {
+  if (currentProject === "GRID R15" && localStorage.getItem(storageMeta.orderFlag) !== "1") {
     rows = [...rows].reverse();
-    localStorage.setItem(ISSUE_ORDER_REVERSED_KEY, "1");
+    localStorage.setItem(storageMeta.orderFlag, "1");
   }
 
   setIssueRows(rows);
@@ -1159,6 +1215,20 @@ function setupMenu(baseData) {
     const viewKey = button.dataset.view;
     if (!viewKey || viewKey === currentView) return;
     renderDashboard(baseData, viewKey);
+  });
+}
+
+function setupProjectSelector(baseData) {
+  const select = document.getElementById("versionBadge");
+  if (!select) return;
+  select.addEventListener("change", (event) => {
+    const next = String(event.target.value || "GRID R15");
+    currentProject = next;
+    issueSearchQuery = "";
+    issueSortState.field = null;
+    issueSortState.dir = null;
+    hydrateIssueRows();
+    renderDashboard(baseData, currentView);
   });
 }
 
@@ -1187,18 +1257,56 @@ function setupIssueSort(baseData) {
     issueSortState.field = button.dataset.sortField;
     issueSortState.dir = button.dataset.sortDir;
 
-    const rows = baseData.views.issueList.issueRows || [];
+    const rows = getIssueRows();
     renderIssueTable(rows);
   });
 }
 
 function setupIssueDelete() {
   const section = document.getElementById("issueTableSection");
+  section.addEventListener("change", (event) => {
+    const target = event.target;
+    if (!(target instanceof HTMLInputElement)) return;
+
+    if (target.id === "issueCheckAll") {
+      const rowChecks = Array.from(section.querySelectorAll("#issueTableBody .issue-row-check"));
+      rowChecks.forEach((el) => {
+        const rowKey = String(el.dataset.rowKey || "");
+        el.checked = target.checked;
+        if (target.checked) selectedIssueKeys.add(rowKey);
+        else selectedIssueKeys.delete(rowKey);
+      });
+      syncIssueCheckAllState();
+      return;
+    }
+
+    if (target.classList.contains("issue-row-check")) {
+      const rowKey = String(target.dataset.rowKey || "");
+      if (target.checked) selectedIssueKeys.add(rowKey);
+      else selectedIssueKeys.delete(rowKey);
+      syncIssueCheckAllState();
+    }
+  });
+
   section.addEventListener("click", (event) => {
+    const bulkBtn = event.target.closest("#deleteSelectedBtn");
+    if (bulkBtn) {
+      if (!selectedIssueKeys.size) {
+        alert("Please select issues first.");
+        return;
+      }
+      const rows = getIssueRows().filter((row) => !selectedIssueKeys.has(String(row.rowKey || "")));
+      selectedIssueKeys.clear();
+      setIssueRows(rows);
+      renderDashboard(dashboardData, "issueList");
+      return;
+    }
+
     const btn = event.target.closest(".delete-btn");
     if (!btn) return;
     const rowKey = btn.dataset.rowKey;
     if (!rowKey) return;
+    selectedIssueKeys.delete(String(rowKey));
     const rows = getIssueRows().filter((row) => String(row.rowKey) !== String(rowKey));
     setIssueRows(rows);
     renderDashboard(dashboardData, "issueList");
@@ -1423,6 +1531,7 @@ function setupIssueSearch(baseData) {
 }
 
 setupMenu(dashboardData);
+setupProjectSelector(dashboardData);
 setupIssueSort(dashboardData);
 setupKpiScroll();
 hydrateIssueRows();

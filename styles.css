@@ -118,6 +118,37 @@ body {
   padding: 8px 14px;
 }
 
+.badge-dropdown-wrap {
+  margin: 0 0 14px;
+}
+
+.badge-select {
+  background: #12274a;
+  color: #69a8ff;
+  border: 1px solid #27446f;
+  border-radius: 999px;
+  font-weight: 700;
+  font-size: 13px;
+  padding: 8px 30px 8px 14px;
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  background-image:
+    linear-gradient(45deg, transparent 50%, #69a8ff 50%),
+    linear-gradient(135deg, #69a8ff 50%, transparent 50%);
+  background-position:
+    calc(100% - 16px) calc(50% - 2px),
+    calc(100% - 11px) calc(50% - 2px);
+  background-size: 5px 5px, 5px 5px;
+  background-repeat: no-repeat;
+}
+
+.badge-select:focus {
+  outline: none;
+  border-color: #3f8cff;
+  box-shadow: 0 0 0 2px rgba(63, 140, 255, 0.2);
+}
+
 h1 {
   margin: 0;
   font-size: 38px;
@@ -431,6 +462,16 @@ h2 {
   border-color: #314767;
 }
 
+.entry-btn.danger-btn {
+  background: #3a1d26;
+  border-color: #6a2e3a;
+  color: #ffc8d1;
+}
+
+.entry-btn.danger-btn:hover {
+  background: #512233;
+}
+
 .table-wrap {
   width: 100%;
   overflow-x: auto;
@@ -454,6 +495,12 @@ h2 {
   background: #16233a;
   border-bottom: 1px solid var(--line);
   white-space: nowrap;
+}
+
+.issue-table thead th:first-child,
+.issue-table tbody td:first-child {
+  width: 44px;
+  text-align: center;
 }
 
 .issue-table tbody td {

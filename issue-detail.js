@@ -1,7 +1,21 @@
-﻿const ISSUE_STORAGE_KEY = "grid_r15_issue_rows";
+﻿const CURRENT_PROJECT_KEY = "grid_current_project";
+
+const PROJECT_STORAGE_KEYS = {
+  "GRID R15": "grid_r15_issue_rows",
+  "Compact 고도화": "compact_advanced_issue_rows",
+};
+
+const params = new URLSearchParams(window.location.search);
+const projectFromQuery = String(params.get("project") || "").trim();
+const currentProject = projectFromQuery || String(localStorage.getItem(CURRENT_PROJECT_KEY) || "").trim() || "GRID R15";
+localStorage.setItem(CURRENT_PROJECT_KEY, currentProject);
+
+function getIssueStorageKey() {
+  return PROJECT_STORAGE_KEYS[currentProject] || `project_rows_${encodeURIComponent(currentProject)}`;
+}
 
 function loadRows() {
-  const raw = localStorage.getItem(ISSUE_STORAGE_KEY);
+  const raw = localStorage.getItem(getIssueStorageKey());
   if (!raw) return [];
   try {
     const parsed = JSON.parse(raw);
@@ -12,10 +26,9 @@ function loadRows() {
 }
 
 function saveRows(rows) {
-  localStorage.setItem(ISSUE_STORAGE_KEY, JSON.stringify(rows));
+  localStorage.setItem(getIssueStorageKey(), JSON.stringify(rows));
 }
 
-const params = new URLSearchParams(window.location.search);
 const rowKey = params.get("rowKey");
 const form = document.getElementById("issueDetailForm");
 const editToggleBtn = document.getElementById("editToggleBtn");
@@ -140,5 +153,5 @@ form.addEventListener("submit", (event) => {
   });
 
   saveRows(updated);
-  window.location.href = `./issue-detail.html?rowKey=${encodeURIComponent(String(rowKey || ""))}`;
+  window.location.href = `./issue-detail.html?rowKey=${encodeURIComponent(String(rowKey || ""))}&project=${encodeURIComponent(currentProject)}`;
 });

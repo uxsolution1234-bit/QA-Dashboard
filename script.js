@@ -995,7 +995,7 @@ function renderIssueTable(rows) {
         <td>${escapeHtml(getRegistrationDateText(row))}</td>
         <td>${renderImpactLevelCell(row.impactLevel, escapeHtml)}</td>
         <td>${renderPlatformBadge(row.platform, escapeHtml)}</td>
-        <td>${renderIssueStatusBadge(row.issueStatus, escapeHtml)}</td>
+        <td class="status-cell">${renderIssueStatusBadge(row.issueStatus, escapeHtml, rowKey, true)}</td>
         <td>${row.occurrenceVersion}</td>
         <td>${row.modifiedVersion}</td>
         <td>${renderAttachmentCell(row, escapeHtml)}</td>
@@ -1060,7 +1060,7 @@ function renderPlatformBadge(platform, escapeHtml) {
   return `<span class="${cls}">${escapeHtml(value || "-")}</span>`;
 }
 
-function renderIssueStatusBadge(status, escapeHtml) {
+function renderIssueStatusBadge(status, escapeHtml, rowKey = "", removable = false) {
   const statuses = parseStatuses(status);
   if (!statuses.length) return `<span class="status-badges"><span class="status-badge">-</span></span>`;
   const chips = statuses
@@ -1070,7 +1070,19 @@ function renderIssueStatusBadge(status, escapeHtml) {
       if (key === "closed") cls += " closed";
       else if (key === "open") cls += " open";
       else if (key === "resolved") cls += " resolved";
-      return `<span class="${cls}">${escapeHtml(s)}</span>`;
+      if (!removable) return `<span class="${cls}">${escapeHtml(s)}</span>`;
+      return `
+        <span class="${cls} removable">
+          <span>${escapeHtml(s)}</span>
+          <button
+            class="status-remove-btn"
+            type="button"
+            data-row-key="${escapeHtml(String(rowKey || ""))}"
+            data-status="${escapeHtml(s)}"
+            aria-label="Remove ${escapeHtml(s)} status"
+          >x</button>
+        </span>
+      `;
     })
     .join("");
   return `<span class="status-badges">${chips}</span>`;
@@ -1261,7 +1273,7 @@ function ensureRowKeys(rows) {
   return rows.map((row, idx) => ({
     ...row,
     rowKey: row.rowKey || `${row.no || idx + 1}_${row.date || ""}_${idx}`,
-    issueStatus: String(row.issueStatus || "").trim().toLowerCase() === "closed" ? "Closed, Resolved" : row.issueStatus,
+    issueStatus: row.issueStatus,
   }));
 }
 
@@ -1388,6 +1400,21 @@ function setupIssueDelete() {
   });
 
   section.addEventListener("click", (event) => {
+    const removeBtn = event.target.closest(".status-remove-btn");
+    if (removeBtn) {
+      const rowKey = String(removeBtn.dataset.rowKey || "");
+      const statusToRemove = String(removeBtn.dataset.status || "").trim().toLowerCase();
+      if (!rowKey || !statusToRemove) return;
+      const rows = getIssueRows().map((row) => {
+        if (String(row.rowKey) !== rowKey) return row;
+        const nextStatuses = parseStatuses(row.issueStatus).filter((s) => s.trim().toLowerCase() !== statusToRemove);
+        return { ...row, issueStatus: nextStatuses.join(", ") };
+      });
+      setIssueRows(rows);
+      renderDashboard(dashboardData, "issueList");
+      return;
+    }
+
     const bulkBtn = event.target.closest("#deleteSelectedBtn");
     if (bulkBtn) {
       if (!selectedIssueKeys.size) {

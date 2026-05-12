@@ -652,12 +652,47 @@ h2 {
   border: 1px solid transparent;
 }
 
+.status-badge.removable {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding-right: 6px;
+}
+
+.status-remove-btn {
+  border: 0;
+  background: transparent;
+  color: inherit;
+  font-weight: 800;
+  font-size: 11px;
+  line-height: 1;
+  cursor: pointer;
+  opacity: 0;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  display: inline-grid;
+  place-items: center;
+}
+
+.status-badge.removable:hover .status-remove-btn {
+  opacity: 1;
+}
+
 .status-badges {
   display: inline-flex;
   align-items: center;
   gap: 6px;
   flex-wrap: nowrap;
   white-space: nowrap;
+}
+
+.issue-table tbody td.status-cell {
+  text-align: center;
+}
+
+.issue-table tbody td.status-cell .status-badges {
+  justify-content: center;
 }
 
 .status-badge.closed {

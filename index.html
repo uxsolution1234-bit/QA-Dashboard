@@ -120,6 +120,8 @@
           </article>
         </section>
 
+        <section class="platform-breakdown-grid hidden" id="platformBreakdownGrid"></section>
+
         <section class="card issue-table-card hidden" id="issueTableSection">
           <div class="section-head">
             <h2>Issue List</h2>
@@ -138,6 +140,7 @@
                 <tr>
                   <th><input type="checkbox" id="issueCheckAll" aria-label="Select all issues" /></th>
                   <th>No</th>
+                  <th>Registration date</th>
                   <th>
                     <div class="th-sort">
                       <span>Impact Level</span>
@@ -174,21 +177,6 @@
               </thead>
               <tbody id="issueTableBody"></tbody>
             </table>
-          </div>
-
-          <div class="impact-sections">
-            <article class="card impact-card" id="highSection">
-              <div class="section-head"><h3>High</h3><span class="chip" id="highCount">0 items</span></div>
-              <ul class="impact-list" id="highList"></ul>
-            </article>
-            <article class="card impact-card" id="mediumSection">
-              <div class="section-head"><h3>Medium</h3><span class="chip" id="mediumCount">0 items</span></div>
-              <ul class="impact-list" id="mediumList"></ul>
-            </article>
-            <article class="card impact-card" id="lowSection">
-              <div class="section-head"><h3>Low</h3><span class="chip" id="lowCount">0 items</span></div>
-              <ul class="impact-list" id="lowList"></ul>
-            </article>
           </div>
         </section>
       </main>

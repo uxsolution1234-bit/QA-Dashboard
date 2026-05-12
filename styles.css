@@ -291,6 +291,69 @@ h2 {
   gap: 14px;
 }
 
+.platform-breakdown-grid {
+  margin-top: 14px;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.platform-breakdown-card {
+  padding: 18px 20px;
+}
+
+.platform-breakdown-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.platform-breakdown-total {
+  margin: 8px 0 10px;
+  color: #9db0cb;
+}
+
+.platform-breakdown-total strong {
+  color: #e8eefb;
+}
+
+.platform-breakdown-body {
+  display: grid;
+  gap: 12px;
+}
+
+.donut-layout.compact {
+  align-items: flex-start;
+  gap: 14px;
+}
+
+.donut.small {
+  width: 110px;
+}
+
+.legend.compact li {
+  margin: 6px 0;
+  font-size: 13px;
+}
+
+.platform-impact-box {
+  border: 1px solid #253a58;
+  border-radius: 10px;
+  background: #121d2f;
+  padding: 10px 12px;
+}
+
+.platform-impact-title {
+  margin: 0 0 8px;
+  color: #9db0cb;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.platform-impact-box p {
+  margin: 4px 0;
+}
+
 .hidden {
   display: none !important;
 }
@@ -615,6 +678,43 @@ h2 {
   border-color: #3ca377;
 }
 
+.impact-level-cell {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-weight: 700;
+}
+
+.impact-level-glyph {
+  width: 14px;
+  text-align: center;
+  font-weight: 800;
+}
+
+.impact-level-glyph.high {
+  color: #ff6b6b;
+}
+
+.impact-level-glyph.medium {
+  color: #f4a259;
+}
+
+.impact-level-glyph.low {
+  color: #3f8cff;
+}
+
+.impact-level-cell.high .impact-level-glyph {
+  color: #ff6b6b;
+}
+
+.impact-level-cell.medium .impact-level-glyph {
+  color: #f4a259;
+}
+
+.impact-level-cell.low .impact-level-glyph {
+  color: #3f8cff;
+}
+
 .impact-sections {
   display: grid;
   gap: 12px;
@@ -658,6 +758,29 @@ h3 {
 .impact-meta {
   color: #89a0c2;
   font-size: 12px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.impact-level-icon {
+  display: inline-flex;
+  width: 16px;
+  justify-content: center;
+  margin-right: 2px;
+  font-weight: 800;
+}
+
+.impact-level-icon.high {
+  color: #ff6b6b;
+}
+
+.impact-level-icon.medium {
+  color: #f4a259;
+}
+
+.impact-level-icon.low {
+  color: #3f8cff;
 }
 
 .platform-badge {
@@ -907,6 +1030,10 @@ h3 {
   .bottom-grid {
     grid-template-columns: 1fr;
   }
+
+  .platform-breakdown-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
 }
 
 @media (max-width: 980px) {
@@ -921,6 +1048,10 @@ h3 {
   }
 
   .mid-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .platform-breakdown-grid {
     grid-template-columns: 1fr;
   }
 

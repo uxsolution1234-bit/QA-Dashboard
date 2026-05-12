@@ -815,11 +815,9 @@ function buildDashboardWidgetsFromIssues(rows) {
     Resolved: 0,
   };
   rows.forEach((r) => {
-    const statuses = parseStatuses(r.issueStatus);
-    statuses.forEach((s) => {
-      const key = s.trim();
-      if (statusCount[key] !== undefined) statusCount[key] += 1;
-    });
+    if (hasStatus(r.issueStatus, "open")) statusCount.Open += 1;
+    if (hasStatus(r.issueStatus, "closed")) statusCount.Closed += 1;
+    if (hasStatus(r.issueStatus, "resolved")) statusCount.Resolved += 1;
   });
 
   const impactCount = {
@@ -839,27 +837,95 @@ function buildDashboardWidgetsFromIssues(rows) {
 
   return {
     env: [
-      { label: "피처폰", value: platformCount["Feature Phone"] || 0, color: "#f4a259" },
-      { label: "스마트폰", value: platformCount["Smart Phone"] || 0, color: "#3f8cff" },
-      { label: "디스패처", value: platformCount.Dispatcher || 0, color: "#9b8cff" },
+      { label: "Feature Phone", value: platformCount["Feature Phone"] || 0, color: "#f4a259" },
+      { label: "Smart Phone", value: platformCount["Smart Phone"] || 0, color: "#3f8cff" },
+      { label: "Dispatcher", value: platformCount.Dispatcher || 0, color: "#9b8cff" },
     ],
     qaStatus: [
-      { label: "오픈", value: statusCount.Open || 0, color: "#3f8cff" },
-      { label: "클로즈", value: statusCount.Closed || 0, color: "#7f8ea3" },
-      { label: "해결", value: statusCount.Resolved || 0, color: "#30d58f" },
+      { label: "Open", value: statusCount.Open || 0, color: "#3f8cff" },
+      { label: "Closed", value: statusCount.Closed || 0, color: "#7f8ea3" },
+      { label: "Resolved", value: statusCount.Resolved || 0, color: "#30d58f" },
     ],
     comparison: [
-      { label: "오픈 이슈", value: openCount, diff: `현재 오픈 ${openCount}건`, positive: openCount === 0 },
-      { label: "클로즈/해결", value: closedCount, diff: `처리 완료 ${closedCount}건`, positive: true },
-      { label: "High 영향도", value: impactCount.High || 0, diff: `우선 확인 ${impactCount.High || 0}건`, positive: (impactCount.High || 0) === 0 },
-      { label: "Fixed Version 입력", value: fixedCount, diff: `미입력 ${unfixedCount}건`, positive: unfixedCount === 0 },
+      { label: "Open Issues", value: openCount, diff: `${openCount} currently open`, positive: openCount === 0 },
+      { label: "Closed", value: closedCount, diff: `${closedCount} completed`, positive: true },
+      { label: "High Impact", value: impactCount.High || 0, diff: `${impactCount.High || 0} high-priority issues`, positive: (impactCount.High || 0) === 0 },
+      { label: "Fixed Version Filled", value: fixedCount, diff: `${unfixedCount} without fixed version`, positive: unfixedCount === 0 },
     ],
     assignees: [
-      { name: "High 영향도", issues: impactCount.High || 0, color: "#ff6b6b", tags: [`Medium ${impactCount.Medium || 0}`, `Low ${impactCount.Low || 0}`] },
-      { name: "Medium 영향도", issues: impactCount.Medium || 0, color: "#f7c948", tags: [`High ${impactCount.High || 0}`] },
-      { name: "Low 영향도", issues: impactCount.Low || 0, color: "#30d58f", tags: [`Open ${openCount}`] },
+      { name: "High Impact", issues: impactCount.High || 0, color: "#ff6b6b", tags: [`Medium ${impactCount.Medium || 0}`, `Low ${impactCount.Low || 0}`] },
+      { name: "Medium Impact", issues: impactCount.Medium || 0, color: "#f7c948", tags: [`High ${impactCount.High || 0}`] },
+      { name: "Low Impact", issues: impactCount.Low || 0, color: "#30d58f", tags: [`Open ${openCount}`] },
     ],
   };
+}
+
+function countImpact(rows, level) {
+  return rows.filter((r) => String(r.impactLevel || "").toLowerCase() === level).length;
+}
+
+function countStatus(rows, status) {
+  return rows.filter((r) => hasStatus(r.issueStatus, status)).length;
+}
+
+function renderPlatformBreakdown(rows) {
+  const container = document.getElementById("platformBreakdownGrid");
+  if (!container) return;
+
+  const platforms = [
+    { key: "feature phone", label: "Feature Phone" },
+    { key: "smart phone", label: "Smart Phone" },
+    { key: "dispatcher", label: "Dispatcher" },
+  ];
+
+  container.innerHTML = platforms
+    .map((platform, idx) => {
+      const filtered = rows.filter((r) => String(r.platform || "").toLowerCase() === platform.key);
+      const total = filtered.length;
+      const high = countImpact(filtered, "high");
+      const medium = countImpact(filtered, "medium");
+      const low = countImpact(filtered, "low");
+      const open = countStatus(filtered, "open");
+      const closed = countStatus(filtered, "closed");
+      const resolved = countStatus(filtered, "resolved");
+
+      return `
+        <article class="card platform-breakdown-card">
+          <div class="platform-breakdown-head">
+            <h3>${platform.label}</h3>
+            <span class="chip">${total} issues</span>
+          </div>
+          <p class="platform-breakdown-total">Total Issues: <strong>${total}</strong></p>
+          <div class="platform-breakdown-body">
+            <div class="donut-layout compact">
+              <div class="donut small" id="platformStatusDonut${idx}"><span>STS</span></div>
+              <ul class="legend compact" id="platformStatusLegend${idx}">
+                <li><span class="dot" style="background:#3f8cff"></span>Open - ${open}</li>
+                <li><span class="dot" style="background:#7f8ea3"></span>Closed - ${closed}</li>
+                <li><span class="dot" style="background:#30d58f"></span>Resolved - ${resolved}</li>
+              </ul>
+            </div>
+            <div class="platform-impact-box">
+              <p class="platform-impact-title">Impact Level</p>
+              <p><span class="impact-level-glyph high">⌃</span> High: ${high}</p>
+              <p><span class="impact-level-glyph medium">=</span> Medium: ${medium}</p>
+              <p><span class="impact-level-glyph low">⌄</span> Low: ${low}</p>
+            </div>
+          </div>
+        </article>
+      `;
+    })
+    .join("");
+
+  platforms.forEach((platform, idx) => {
+    const filtered = rows.filter((r) => String(r.platform || "").toLowerCase() === platform.key);
+    const data = [
+      { label: "Open", value: countStatus(filtered, "open"), color: "#3f8cff" },
+      { label: "Closed", value: countStatus(filtered, "closed"), color: "#7f8ea3" },
+      { label: "Resolved", value: countStatus(filtered, "resolved"), color: "#30d58f" },
+    ];
+    makeDonut(document.getElementById(`platformStatusDonut${idx}`), data);
+  });
 }
 
 function getIssuePriority(field, value) {
@@ -919,14 +985,15 @@ function renderIssueTable(rows) {
 
   body.innerHTML = sortedRows
     .map(
-      (row) => {
+      (row, idx) => {
         const rowKey = String(row.rowKey || "");
         const checked = selectedIssueKeys.has(rowKey) ? "checked" : "";
         return `
       <tr>
         <td><input type="checkbox" class="issue-row-check" data-row-key="${escapeHtml(rowKey)}" ${checked} /></td>
-        <td>${row.no}</td>
-        <td>${row.impactLevel}</td>
+        <td>${idx + 1}</td>
+        <td>${escapeHtml(getRegistrationDateText(row))}</td>
+        <td>${renderImpactLevelCell(row.impactLevel, escapeHtml)}</td>
         <td>${renderPlatformBadge(row.platform, escapeHtml)}</td>
         <td>${renderIssueStatusBadge(row.issueStatus, escapeHtml)}</td>
         <td>${row.occurrenceVersion}</td>
@@ -943,6 +1010,34 @@ function renderIssueTable(rows) {
   syncIssueCheckAllState();
   syncSortArrowState();
   renderImpactSections(sortedRows, escapeHtml);
+}
+
+function getRegistrationDateText(row) {
+  const dateText = String(row.date || "").trim();
+  if (dateText) return dateText;
+  const createdAt = String(row.createdAt || "").trim();
+  if (!createdAt) return "-";
+  const d = new Date(createdAt);
+  if (Number.isNaN(d.getTime())) return "-";
+  return d.toISOString().slice(0, 10);
+}
+
+function renderImpactLevelCell(level, escapeHtml) {
+  const value = String(level || "").trim();
+  const key = value.toLowerCase();
+  let icon = "-";
+  let cls = "impact-level-cell";
+  if (key === "high") {
+    icon = "⌃";
+    cls += " high";
+  } else if (key === "medium") {
+    icon = "=";
+    cls += " medium";
+  } else if (key === "low") {
+    icon = "⌄";
+    cls += " low";
+  }
+  return `<span class="${cls}"><span class="impact-level-glyph">${icon}</span>${escapeHtml(value || "-")}</span>`;
 }
 
 function syncIssueCheckAllState() {
@@ -1006,7 +1101,7 @@ function renderImpactList(targetId, countId, rows, escapeHtml) {
             ? `<a class="issue-link" href="${escapeHtml(row.issueUrl)}" target="_blank" rel="noopener noreferrer">${escapeHtml(row.title)}</a>`
             : `<span>${escapeHtml(row.title)}</span>`
         }
-        <span class="impact-meta">${renderPlatformBadge(row.platform, escapeHtml)} | ${escapeHtml(row.issueStatus)}</span>
+        <span class="impact-meta">${renderPlatformBadge(row.platform, escapeHtml)} ${renderIssueStatusBadge(row.issueStatus, escapeHtml)}</span>
       </li>
     `,
     )
@@ -1014,6 +1109,7 @@ function renderImpactList(targetId, countId, rows, escapeHtml) {
 }
 
 function renderImpactSections(rows, escapeHtml) {
+  if (!document.getElementById("highList")) return;
   const high = rows.filter((row) => String(row.impactLevel).toLowerCase() === "high");
   const medium = rows.filter((row) => String(row.impactLevel).toLowerCase() === "medium");
   const low = rows.filter((row) => String(row.impactLevel).toLowerCase() === "low");
@@ -1044,9 +1140,11 @@ function filterIssueRows(rows) {
 
 function toggleSections(viewKey) {
   const isIssueList = viewKey === "issueList";
+  const isDashboard = viewKey === "dashboard";
   document.querySelector(".kpi-grid").classList.toggle("hidden", isIssueList);
-  document.getElementById("midGrid").classList.toggle("hidden", isIssueList);
-  document.getElementById("bottomGrid").classList.toggle("hidden", isIssueList);
+  document.getElementById("midGrid").classList.toggle("hidden", isIssueList || isDashboard);
+  document.getElementById("bottomGrid").classList.toggle("hidden", isIssueList || isDashboard);
+  document.getElementById("platformBreakdownGrid").classList.toggle("hidden", !isDashboard);
   document.getElementById("issueTableSection").classList.toggle("hidden", !isIssueList);
   document.getElementById("listSearchSection").classList.toggle("hidden", !isIssueList);
 }
@@ -1133,7 +1231,7 @@ function renderDashboard(baseData, viewKey) {
     document.getElementById("assigneeCardTitle").textContent = "영향도 인사이트";
     document.getElementById("envDonutLabel").textContent = "플랫폼";
     document.getElementById("qaDonutLabel").textContent = "상태";
-    document.getElementById("compareTarget").textContent = "현재 Issue List 기준";
+    document.getElementById("compareTarget").textContent = "Based on current Issue List";
   } else {
     document.getElementById("envCardTitle").textContent = "Test Environment";
     document.getElementById("qaCardTitle").textContent = "QA Status";
@@ -1151,6 +1249,7 @@ function renderDashboard(baseData, viewKey) {
   renderComparison(document.getElementById("compareGrid"), widgets.comparison);
   renderAssignees(document.getElementById("assigneeList"), widgets.assignees);
   renderIssueTable(filterIssueRows(rows));
+  if (viewKey === "dashboard") renderPlatformBreakdown(rows);
   toggleSections(viewKey);
   setActiveMenu(viewKey);
 }
@@ -1319,7 +1418,7 @@ function setupExportExcel() {
     const rows = getIssueRows();
     const sheetRows = rows.map((row) => ({
       No: row.no,
-      Date: row.date,
+      "Registration date": getRegistrationDateText(row),
       "Issue Status": row.issueStatus,
       "Impact Level": row.impactLevel,
       Platform: row.platform,

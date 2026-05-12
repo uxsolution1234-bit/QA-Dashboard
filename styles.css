@@ -613,6 +613,34 @@ h3 {
   font-size: 12px;
 }
 
+.platform-badge {
+  display: inline-block;
+  padding: 3px 9px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 700;
+  border: 1px solid transparent;
+  white-space: nowrap;
+}
+
+.platform-badge.feature-phone {
+  background: #3a2f18;
+  color: #ffd78f;
+  border-color: #7a5a1f;
+}
+
+.platform-badge.smart-phone {
+  background: #1d3356;
+  color: #b8d7ff;
+  border-color: #365f99;
+}
+
+.platform-badge.dispatcher {
+  background: #3a2558;
+  color: #e2d2ff;
+  border-color: #6b45a7;
+}
+
 .create-page {
   min-height: 100vh;
   display: grid;

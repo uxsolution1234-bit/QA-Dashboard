@@ -1,4 +1,4 @@
-const dashboardData = {
+﻿const dashboardData = {
   browserTitle: "GRID R15",
   logoText: "GRID R15_QA Report",
   sprint: "GME 7.18.0",
@@ -73,7 +73,7 @@ const dashboardData = {
                 "platform": "Feature Phone",
                 "occurrenceVersion": "v1.0.0.0",
                 "modifiedVersion": "v1.0.0.0",
-                "title": "Ad-hoc Group Exit or Delete 시 해당 Group이 삭제되지 않는 현상",
+                "title": "Ad-hoc Group Exit or Delete ???대떦 Group????젣?섏? ?딅뒗 ?꾩긽",
                 "issueUrl": ""
         },
         {
@@ -84,7 +84,7 @@ const dashboardData = {
                 "platform": "Feature Phone",
                 "occurrenceVersion": "v1.0.0.0",
                 "modifiedVersion": "v1.0.0.0",
-                "title": "View member list > 본인 계정 Long Press 시 Context menu 노출되는 현상",
+                "title": "View member list > 蹂몄씤 怨꾩젙 Long Press ??Context menu ?몄텧?섎뒗 ?꾩긽",
                 "issueUrl": ""
         },
         {
@@ -95,7 +95,7 @@ const dashboardData = {
                 "platform": "Feature Phone",
                 "occurrenceVersion": "v1.0.0.0",
                 "modifiedVersion": "v1.0.0.0",
-                "title": "그룹내에 Cross fleet 없는 상태 메시지 전송 시  발신자 화면에서 전송은 되지만 Toast message로 Failed 노출되는 현상",
+                "title": "洹몃９?댁뿉 Cross fleet ?녿뒗 ?곹깭 硫붿떆吏 ?꾩넚 ?? 諛쒖떊???붾㈃?먯꽌 ?꾩넚? ?섏?留?Toast message濡?Failed ?몄텧?섎뒗 ?꾩긽",
                 "issueUrl": ""
         },
         {
@@ -106,7 +106,7 @@ const dashboardData = {
                 "platform": "Feature Phone",
                 "occurrenceVersion": "v1.0.0.0",
                 "modifiedVersion": "v1.0.0.0",
-                "title": "Ad-hoc 그룹 생성  후 멤버 추가 화면에 본인이 노출되는 현상",
+                "title": "Ad-hoc 洹몃９ ?앹꽦  ??硫ㅻ쾭 異붽? ?붾㈃??蹂몄씤???몄텧?섎뒗 ?꾩긽",
                 "issueUrl": ""
         },
         {
@@ -117,7 +117,7 @@ const dashboardData = {
                 "platform": "Feature Phone",
                 "occurrenceVersion": "v1.0.0.0",
                 "modifiedVersion": "v1.0.0.0",
-                "title": "Conveersation view  Message Tab 에서 Opt-in > Opt out 진행 시 Crash 발생하는 현상",
+                "title": "Conveersation view  Message Tab ?먯꽌 Opt-in > Opt out 吏꾪뻾 ??Crash 諛쒖깮?섎뒗 ?꾩긽",
                 "issueUrl": ""
         },
         {
@@ -128,7 +128,7 @@ const dashboardData = {
                 "platform": "Dispatcher",
                 "occurrenceVersion": "v1.1.3",
                 "modifiedVersion": "v1.1.3",
-                "title": "v1.1.3 Contacts 에서 검색어 입력 후 멤버 노출상태에서 전체 체크 버튼 선택 시 동작하지 않는 현상",
+                "title": "v1.1.3 Contacts ?먯꽌 寃?됱뼱 ?낅젰 ??硫ㅻ쾭 ?몄텧?곹깭?먯꽌 ?꾩껜 泥댄겕 踰꾪듉 ?좏깮 ???숈옉?섏? ?딅뒗 ?꾩긽",
                 "issueUrl": ""
         },
         {
@@ -139,7 +139,7 @@ const dashboardData = {
                 "platform": "Feature Phone",
                 "occurrenceVersion": "v1.1.2.0",
                 "modifiedVersion": "v1.1.2.0",
-                "title": "Emergency call시 Idle 상태 되는 현상..",
+                "title": "Emergency call??Idle ?곹깭 ?섎뒗 ?꾩긽..",
                 "issueUrl": ""
         },
         {
@@ -150,7 +150,7 @@ const dashboardData = {
                 "platform": "Feature Phone",
                 "occurrenceVersion": "v1.1.2.0",
                 "modifiedVersion": "v1.1.2.0",
-                "title": "group선택 후 ptt버튼 선택시 앱 죽는 현상",
+                "title": "group?좏깮 ??ptt踰꾪듉 ?좏깮????二쎈뒗 ?꾩긽",
                 "issueUrl": ""
         },
         {
@@ -172,7 +172,7 @@ const dashboardData = {
                 "platform": "Dispatcher",
                 "occurrenceVersion": "v1.1.2.0",
                 "modifiedVersion": "v1.1.2.0",
-                "title": "방치 후 강제 종료되는 현상",
+                "title": "諛⑹튂 ??媛뺤젣 醫낅즺?섎뒗 ?꾩긽",
                 "issueUrl": ""
         },
         {
@@ -183,7 +183,7 @@ const dashboardData = {
                 "platform": "Dispatcher",
                 "occurrenceVersion": "v1.1.2.0",
                 "modifiedVersion": "v1.1.2.0",
-                "title": "Emergency Call 시도 시 Hot mic 상태로 변경되지 않는 현상",
+                "title": "Emergency Call ?쒕룄 ??Hot mic ?곹깭濡?蹂寃쎈릺吏 ?딅뒗 ?꾩긽",
                 "issueUrl": ""
         },
         {
@@ -194,7 +194,7 @@ const dashboardData = {
                 "platform": "Dispatcher",
                 "occurrenceVersion": "v1.1.2.0",
                 "modifiedVersion": "v1.1.2.0",
-                "title": "Contacts 에서 검색어 입력 후 멤버 우클릭 시 Context Menu 미노출되는 현상",
+                "title": "Contacts ?먯꽌 寃?됱뼱 ?낅젰 ??硫ㅻ쾭 ?고겢由???Context Menu 誘몃끂異쒕릺???꾩긽",
                 "issueUrl": ""
         },
         {
@@ -205,7 +205,7 @@ const dashboardData = {
                 "platform": "Dispatcher",
                 "occurrenceVersion": "v1.1.2.0",
                 "modifiedVersion": "v1.1.2.0",
-                "title": "Contacts 에서 검색어 입력 후 멤버 노출상태에서 전체 체크 버튼 선택 시 동작하지 않는 현상",
+                "title": "Contacts ?먯꽌 寃?됱뼱 ?낅젰 ??硫ㅻ쾭 ?몄텧?곹깭?먯꽌 ?꾩껜 泥댄겕 踰꾪듉 ?좏깮 ???숈옉?섏? ?딅뒗 ?꾩긽",
                 "issueUrl": ""
         },
         {
@@ -216,7 +216,7 @@ const dashboardData = {
                 "platform": "Feature Phone",
                 "occurrenceVersion": "v1.3.0",
                 "modifiedVersion": "v1.3.0",
-                "title": "Audio gain control 변경  후 기기 변경 시 기존값이 유지되지 않는 현상",
+                "title": "Audio gain control 蹂寃? ??湲곌린 蹂寃???湲곗〈媛믪씠 ?좎??섏? ?딅뒗 ?꾩긽",
                 "issueUrl": ""
         },
         {
@@ -227,7 +227,7 @@ const dashboardData = {
                 "platform": "Feature Phone",
                 "occurrenceVersion": "v1.3.0",
                 "modifiedVersion": "v1.3.0",
-                "title": "Assigned private contact 와 [OK]  버튼이 겹쳐져서 노출",
+                "title": "Assigned private contact ? [OK]  踰꾪듉??寃뱀퀜?몄꽌 ?몄텧",
                 "issueUrl": ""
         },
         {
@@ -238,7 +238,7 @@ const dashboardData = {
                 "platform": "Smart Phone",
                 "occurrenceVersion": "v1.0.1.0",
                 "modifiedVersion": "v1.0.1.0",
-                "title": "GeonFence Group 의 Member가 많을 경우에 Call 시도되지 않음",
+                "title": "GeonFence Group ??Member媛 留롮쓣 寃쎌슦??Call ?쒕룄?섏? ?딆쓬",
                 "issueUrl": ""
         },
         {
@@ -249,7 +249,7 @@ const dashboardData = {
                 "platform": "Feature Phone",
                 "occurrenceVersion": "v1.3.0",
                 "modifiedVersion": "v1.3.0",
-                "title": "Call me ASAP 시 수신 단말 노티영역이 방향키로 포커스 되지 않음",
+                "title": "Call me ASAP ???섏떊 ?⑤쭚 ?명떚?곸뿭??諛⑺뼢?ㅻ줈 ?ъ빱???섏? ?딆쓬",
                 "issueUrl": ""
         },
         {
@@ -260,7 +260,7 @@ const dashboardData = {
                 "platform": "Feature Phone",
                 "occurrenceVersion": "v1.2.3.0",
                 "modifiedVersion": "v1.2.3.0",
-                "title": "계정 로그인 > 다른 org id 계정으로 로그인 후 단말 Home 화면으로 이동되며 앱 재실행 시 앱이 멈춤",
+                "title": "怨꾩젙 濡쒓렇??> ?ㅻⅨ org id 怨꾩젙?쇰줈 濡쒓렇?????⑤쭚 Home ?붾㈃?쇰줈 ?대룞?섎ŉ ???ъ떎?????깆씠 硫덉땄",
                 "issueUrl": ""
         },
         {
@@ -271,7 +271,7 @@ const dashboardData = {
                 "platform": "Feature Phone",
                 "occurrenceVersion": "v1.2.3.0",
                 "modifiedVersion": "v1.2.3.0",
-                "title": "스마트폰에서 Geo-Fencing Group 생성 후 발신 시도 시 수신자 Channel View 화면에서 Group Name 미노출",
+                "title": "?ㅻ쭏?명룿?먯꽌 Geo-Fencing Group ?앹꽦 ??諛쒖떊 ?쒕룄 ???섏떊??Channel View ?붾㈃?먯꽌 Group Name 誘몃끂異?",
                 "issueUrl": ""
         },
         {
@@ -282,7 +282,7 @@ const dashboardData = {
                 "platform": "Dispatcher",
                 "occurrenceVersion": "v1.1.3",
                 "modifiedVersion": "v1.1.3",
-                "title": "v1.1.3  pre-arranged group에서 우클릭 시  ad hoc group 의 관한 메뉴도 노출",
+                "title": "v1.1.3  pre-arranged group?먯꽌 ?고겢由??? ad hoc group ??愿??硫붾돱???몄텧",
                 "issueUrl": ""
         },
         {
@@ -293,7 +293,7 @@ const dashboardData = {
                 "platform": "Dispatcher",
                 "occurrenceVersion": "v1.1.3",
                 "modifiedVersion": "v1.1.3",
-                "title": "v1.1.3  ad-hoc group은 set as home group 설정 불가",
+                "title": "v1.1.3  ad-hoc group? set as home group ?ㅼ젙 遺덇?",
                 "issueUrl": ""
         },
         {
@@ -304,7 +304,7 @@ const dashboardData = {
                 "platform": "Dispatcher",
                 "occurrenceVersion": "v1.1.3",
                 "modifiedVersion": "v1.1.3",
-                "title": "v1.1.3  Geo fence Group 동일한 Group 명으로 생성 가능",
+                "title": "v1.1.3  Geo fence Group ?숈씪??Group 紐낆쑝濡??앹꽦 媛??",
                 "issueUrl": ""
         },
         {
@@ -315,7 +315,7 @@ const dashboardData = {
                 "platform": "Dispatcher",
                 "occurrenceVersion": "v1.1.3",
                 "modifiedVersion": "v1.1.3",
-                "title": "v1.1.3  opt-out 된 그룹에 메시지 창 열어둔 상태에서  opt-in 후 에도 메시지 입력이 안됨",
+                "title": "v1.1.3  opt-out ??洹몃９??硫붿떆吏 李??댁뼱???곹깭?먯꽌  opt-in ???먮룄 硫붿떆吏 ?낅젰???덈맖",
                 "issueUrl": ""
         },
         {
@@ -326,7 +326,7 @@ const dashboardData = {
                 "platform": "Dispatcher",
                 "occurrenceVersion": "v1.1.3",
                 "modifiedVersion": "v1.1.3",
-                "title": "v1.1.3 Ad-hoc Group 생성 시 동일한 Group 명 생성 가능",
+                "title": "v1.1.3 Ad-hoc Group ?앹꽦 ???숈씪??Group 紐??앹꽦 媛??",
                 "issueUrl": ""
         },
         {
@@ -337,7 +337,7 @@ const dashboardData = {
                 "platform": "Dispatcher",
                 "occurrenceVersion": "v1.1.4",
                 "modifiedVersion": "v1.1.4",
-                "title": "Member 미선택 상태에서도 Ad-hoc Group 생성 가능",
+                "title": "Member 誘몄꽑???곹깭?먯꽌??Ad-hoc Group ?앹꽦 媛??",
                 "issueUrl": ""
         },
         {
@@ -348,7 +348,7 @@ const dashboardData = {
                 "platform": "Smart Phone",
                 "occurrenceVersion": "v1.0.2.0",
                 "modifiedVersion": "v1.0.2.0",
-                "title": "Logout 버튼 선택 시 최초 로그인 페이지로 이동되지 않고 검은화면 유지됨",
+                "title": "Logout 踰꾪듉 ?좏깮 ??理쒖큹 濡쒓렇???섏씠吏濡??대룞?섏? ?딄퀬 寃??붾㈃ ?좎???",
                 "issueUrl": ""
         },
         {
@@ -359,7 +359,7 @@ const dashboardData = {
                 "platform": "Feature Phone",
                 "occurrenceVersion": "v1.3.2",
                 "modifiedVersion": "v1.3.2",
-                "title": "Member List에 Member가 보이지 않음",
+                "title": "Member List??Member媛 蹂댁씠吏 ?딆쓬",
                 "issueUrl": ""
         },
         {
@@ -370,7 +370,7 @@ const dashboardData = {
                 "platform": "Dispatcher",
                 "occurrenceVersion": "v1.1.4",
                 "modifiedVersion": "v1.1.4",
-                "title": "Dispatcher > Affiliation 화면 >  Contact 추가 완료되는 팝업 노출 상태에서 뒤에 Affiliation 영역 버튼들이 선택 가능함",
+                "title": "Dispatcher > Affiliation ?붾㈃ >  Contact 異붽? ?꾨즺?섎뒗 ?앹뾽 ?몄텧 ?곹깭?먯꽌 ?ㅼ뿉 Affiliation ?곸뿭 踰꾪듉?ㅼ씠 ?좏깮 媛?ν븿",
                 "issueUrl": ""
         },
         {
@@ -381,7 +381,7 @@ const dashboardData = {
                 "platform": "Smart Phone",
                 "occurrenceVersion": "v1.0.2.0",
                 "modifiedVersion": "v1.0.2.0",
-                "title": "Answer Call 발생 시 Smpartphone 에 시간 카운트가 미노출 됨",
+                "title": "Answer Call 諛쒖깮 ??Smpartphone ???쒓컙 移댁슫?멸? 誘몃끂異???",
                 "issueUrl": ""
         },
         {
@@ -392,7 +392,7 @@ const dashboardData = {
                 "platform": "Smart Phone",
                 "occurrenceVersion": "v1.0.2.0",
                 "modifiedVersion": "v1.0.2.0",
-                "title": "Call 연결 시Smart Phone 영역 닫기 버튼이 [Leave] 로 노출되는 현상",
+                "title": "Call ?곌껐 ?쏶mart Phone ?곸뿭 ?リ린 踰꾪듉??[Leave] 濡??몄텧?섎뒗 ?꾩긽",
                 "issueUrl": ""
         },
         {
@@ -403,7 +403,7 @@ const dashboardData = {
                 "platform": "Dispatcher",
                 "occurrenceVersion": "v1.1.4",
                 "modifiedVersion": "v1.1.4",
-                "title": "Dispatcher Temporary Group > Affiliation > Opt-in, Opt-out 설정 후 재진입 시 적용되지 않음",
+                "title": "Dispatcher Temporary Group > Affiliation > Opt-in, Opt-out ?ㅼ젙 ???ъ쭊?????곸슜?섏? ?딆쓬",
                 "issueUrl": ""
         },
         {
@@ -414,7 +414,7 @@ const dashboardData = {
                 "platform": "Feature Phone",
                 "occurrenceVersion": "v1.3.2",
                 "modifiedVersion": "v1.3.2",
-                "title": "Temporary Group Call 시도 시 Channel View 늦게 노출",
+                "title": "Temporary Group Call ?쒕룄 ??Channel View ??쾶 ?몄텧",
                 "issueUrl": ""
         },
         {
@@ -425,7 +425,7 @@ const dashboardData = {
                 "platform": "Dispatcher",
                 "occurrenceVersion": "v1.1.4",
                 "modifiedVersion": "v1.1.4",
-                "title": "Setting > Call Recording Backup 에서 파일 생성되지 않고 탐색화면에서 [취소] 버튼 선택 시 최신시간으로 변경 됨",
+                "title": "Setting > Call Recording Backup ?먯꽌 ?뚯씪 ?앹꽦?섏? ?딄퀬 ?먯깋?붾㈃?먯꽌 [痍⑥냼] 踰꾪듉 ?좏깮 ??理쒖떊?쒓컙?쇰줈 蹂寃???",
                 "issueUrl": ""
         },
         {
@@ -436,7 +436,7 @@ const dashboardData = {
                 "platform": "Dispatcher",
                 "occurrenceVersion": "v1.1.4",
                 "modifiedVersion": "v1.1.4",
-                "title": "Temporary Group > Affiliation 에서 Dispatcher 계정외에 다른 멤버를 Opt-in / Opt-out 시 적용되지 않음",
+                "title": "Temporary Group > Affiliation ?먯꽌 Dispatcher 怨꾩젙?몄뿉 ?ㅻⅨ 硫ㅻ쾭瑜?Opt-in / Opt-out ???곸슜?섏? ?딆쓬",
                 "issueUrl": ""
         },
         {
@@ -447,7 +447,7 @@ const dashboardData = {
                 "platform": "Dispatcher",
                 "occurrenceVersion": "v1.1.4",
                 "modifiedVersion": "v1.1.4",
-                "title": "Opt-in 상태의 Group Message 입력 상태(전송 버튼 X) 에서 해당 그룹 Opt-out 시 Message 전송이 가능함",
+                "title": "Opt-in ?곹깭??Group Message ?낅젰 ?곹깭(?꾩넚 踰꾪듉 X) ?먯꽌 ?대떦 洹몃９ Opt-out ??Message ?꾩넚??媛?ν븿",
                 "issueUrl": ""
         },
         {
@@ -458,7 +458,7 @@ const dashboardData = {
                 "platform": "Smart Phone",
                 "occurrenceVersion": "v1.0.2.0",
                 "modifiedVersion": "v1.0.2.0",
-                "title": "Message 전송 시 노출되지 않고 앱 재로그인 동작",
+                "title": "Message ?꾩넚 ???몄텧?섏? ?딄퀬 ???щ줈洹몄씤 ?숈옉",
                 "issueUrl": ""
         },
         {
@@ -469,7 +469,7 @@ const dashboardData = {
                 "platform": "Feature Phone",
                 "occurrenceVersion": "v1.3.3.0",
                 "modifiedVersion": "v1.3.3.0",
-                "title": "Ad-hoc Group 삭제 시 NOTIFY는 내려오지만 화면이 갱신되지 않아 삭제한 Group이 남아있음",
+                "title": "Ad-hoc Group ??젣 ??NOTIFY???대젮?ㅼ?留??붾㈃??媛깆떊?섏? ?딆븘 ??젣??Group???⑥븘?덉쓬",
                 "issueUrl": ""
         },
         {
@@ -480,7 +480,7 @@ const dashboardData = {
                 "platform": "Dispatcher",
                 "occurrenceVersion": "v1.1.5",
                 "modifiedVersion": "v1.1.5",
-                "title": "로그인 시 pv에서 노출되는 Appinfo RAM 노출값이 소수점까지 노출되지 않음   pc : 16.0GB (15.7GB 사용가능) pv : 15GB_RAM",
+                "title": "濡쒓렇????pv?먯꽌 ?몄텧?섎뒗 Appinfo RAM ?몄텧媛믪씠 ?뚯닔?먭퉴吏 ?몄텧?섏? ?딆쓬   pc : 16.0GB (15.7GB ?ъ슜媛?? pv : 15GB_RAM",
                 "issueUrl": ""
         },
         {
@@ -491,7 +491,7 @@ const dashboardData = {
                 "platform": "Dispatcher",
                 "occurrenceVersion": "v1.1.5",
                 "modifiedVersion": "v1.1.5",
-                "title": "Add to Existing Adhoc Group 에서 dispatcher 계정 체크 후 Done 선택 시 디버그 에러 발생",
+                "title": "Add to Existing Adhoc Group ?먯꽌 dispatcher 怨꾩젙 泥댄겕 ??Done ?좏깮 ???붾쾭洹??먮윭 諛쒖깮",
                 "issueUrl": ""
         },
         {
@@ -502,7 +502,7 @@ const dashboardData = {
                 "platform": "Feature Phone",
                 "occurrenceVersion": "v1.3.4.0",
                 "modifiedVersion": "v1.3.4.0",
-                "title": "Temp Group 에서  로그인된 계정의 포함된 그룹에 멤버 추가 시 GroupProfile 에서 fails이 노출되고 있음 (fails 노출되는 GroupProfile은 Not mine group )",
+                "title": "Temp Group ?먯꽌  濡쒓렇?몃맂 怨꾩젙???ы븿??洹몃９??硫ㅻ쾭 異붽? ??GroupProfile ?먯꽌 fails???몄텧?섍퀬 ?덉쓬 (fails ?몄텧?섎뒗 GroupProfile? Not mine group )",
                 "issueUrl": ""
         },
         {
@@ -513,7 +513,7 @@ const dashboardData = {
                 "platform": "Smart Phone",
                 "occurrenceVersion": "v1.0.3.0",
                 "modifiedVersion": "v1.0.3.0",
-                "title": "Call 시 Speaker icon 설정 값이 이전 설정값으로 유지되지 않음",
+                "title": "Call ??Speaker icon ?ㅼ젙 媛믪씠 ?댁쟾 ?ㅼ젙媛믪쑝濡??좎??섏? ?딆쓬",
                 "issueUrl": ""
         },
         {
@@ -524,7 +524,7 @@ const dashboardData = {
                 "platform": "Dispatcher",
                 "occurrenceVersion": "v1.1.5.0",
                 "modifiedVersion": "v1.1.5.0",
-                "title": "Temp Group 멤버 Opt-in/Opt-out 설정 후 Affiliation 메뉴 재진입 시 설정한 값이 변경되어있지 않음",
+                "title": "Temp Group 硫ㅻ쾭 Opt-in/Opt-out ?ㅼ젙 ??Affiliation 硫붾돱 ?ъ쭊?????ㅼ젙??媛믪씠 蹂寃쎈릺?댁엳吏 ?딆쓬",
                 "issueUrl": ""
         },
         {
@@ -535,7 +535,7 @@ const dashboardData = {
                 "platform": "Smart Phone",
                 "occurrenceVersion": "v1.0.4.0",
                 "modifiedVersion": "v1.0.4.0",
-                "title": "ptt-z 연결상태에서 단말 재시작 후  악세사리 메뉴 하단에는 ptt-z 노출되지만 진입 시 페어링된 기기 없다고 노출",
+                "title": "ptt-z ?곌껐?곹깭?먯꽌 ?⑤쭚 ?ъ떆???? ?낆꽭?щ━ 硫붾돱 ?섎떒?먮뒗 ptt-z ?몄텧?섏?留?吏꾩엯 ???섏뼱留곷맂 湲곌린 ?녿떎怨??몄텧",
                 "issueUrl": ""
         },
         {
@@ -546,7 +546,7 @@ const dashboardData = {
                 "platform": "Feature Phone",
                 "occurrenceVersion": "v1.3.6.0",
                 "modifiedVersion": "v1.3.6.0",
-                "title": "Conversation View에서 Nickname 변경 후 미반영",
+                "title": "Conversation View?먯꽌 Nickname 蹂寃???誘몃컲??",
                 "issueUrl": ""
         },
         {
@@ -557,7 +557,7 @@ const dashboardData = {
                 "platform": "Smart Phone",
                 "occurrenceVersion": "v1.0.6.0",
                 "modifiedVersion": "v1.0.6.0",
-                "title": "Geofence Group Opt-in/out 동작 시 'Service unavailable' Toast 발생",
+                "title": "Geofence Group Opt-in/out ?숈옉 ??'Service unavailable' Toast 諛쒖깮",
                 "issueUrl": ""
         },
         {
@@ -568,7 +568,7 @@ const dashboardData = {
                 "platform": "Smart Phone",
                 "occurrenceVersion": "v1.0.6.0",
                 "modifiedVersion": "v1.0.6.0",
-                "title": "Location Sharing 화면에서 Group 검색 시 입력할때마다 DB 재조회로 인한 필터링 지연 발생",
+                "title": "Location Sharing ?붾㈃?먯꽌 Group 寃?????낅젰?좊븣留덈떎 DB ?ъ“?뚮줈 ?명븳 ?꾪꽣留?吏??諛쒖깮",
                 "issueUrl": ""
         },
         {
@@ -579,7 +579,7 @@ const dashboardData = {
                 "platform": "Smart Phone",
                 "occurrenceVersion": "v1.0.6.0",
                 "modifiedVersion": "v1.0.6.0",
-                "title": "검색 결과에서 추가한 사용자 삭제 후 검색결과 리스트 확인 시 [+] 버튼 미노출",
+                "title": "寃??寃곌낵?먯꽌 異붽????ъ슜????젣 ??寃?됯껐怨?由ъ뒪???뺤씤 ??[+] 踰꾪듉 誘몃끂異?",
                 "issueUrl": ""
         },
         {
@@ -590,7 +590,7 @@ const dashboardData = {
                 "platform": "Dispatcher",
                 "occurrenceVersion": "v1.1.7.0",
                 "modifiedVersion": "v1.1.7.0",
-                "title": "Receive Group Call 의 경우 마이크 버튼 선택 시 알림 팝업이 발생하지 않는 현상",
+                "title": "Receive Group Call ??寃쎌슦 留덉씠??踰꾪듉 ?좏깮 ???뚮┝ ?앹뾽??諛쒖깮?섏? ?딅뒗 ?꾩긽",
                 "issueUrl": ""
         },
         {
@@ -601,7 +601,7 @@ const dashboardData = {
                 "platform": "Dispatcher",
                 "occurrenceVersion": "v1.1.7.0",
                 "modifiedVersion": "v1.1.7.0",
-                "title": "ID / PW 정상 입력 후 로그인 시도 시 '로그인 정보가 다르다' 팝업 노출되고 재시도 시 정상 로그인 되는 현상",
+                "title": "ID / PW ?뺤긽 ?낅젰 ??濡쒓렇???쒕룄 ??'濡쒓렇???뺣낫媛 ?ㅻⅤ?? ?앹뾽 ?몄텧?섍퀬 ?ъ떆?????뺤긽 濡쒓렇???섎뒗 ?꾩긽",
                 "issueUrl": ""
         },
         {
@@ -612,7 +612,7 @@ const dashboardData = {
                 "platform": "Dispatcher",
                 "occurrenceVersion": "v1.1.7.0",
                 "modifiedVersion": "v1.1.7.0",
-                "title": "Emergency Alert 발신 상태에서 재시도 시 팝업이 미노출 되는 현상",
+                "title": "Emergency Alert 諛쒖떊 ?곹깭?먯꽌 ?ъ떆?????앹뾽??誘몃끂異??섎뒗 ?꾩긽",
                 "issueUrl": ""
         },
         {
@@ -623,7 +623,7 @@ const dashboardData = {
                 "platform": "Dispatcher",
                 "occurrenceVersion": "v1.1.7.0",
                 "modifiedVersion": "v1.1.7.0",
-                "title": "Dispatcher Call 시도 시 발언상태로 노출되는 현상",
+                "title": "Dispatcher Call ?쒕룄 ??諛쒖뼵?곹깭濡??몄텧?섎뒗 ?꾩긽",
                 "issueUrl": ""
         }
 ],
@@ -773,6 +773,70 @@ function renderAssignees(el, assignees) {
     .join("");
 }
 
+function buildDashboardWidgetsFromIssues(rows) {
+  const platformCount = {
+    "Feature Phone": 0,
+    "Smart Phone": 0,
+    Dispatcher: 0,
+  };
+  rows.forEach((r) => {
+    const key = String(r.platform || "");
+    if (platformCount[key] !== undefined) platformCount[key] += 1;
+  });
+
+  const statusCount = {
+    Open: 0,
+    Closed: 0,
+    Resolved: 0,
+  };
+  rows.forEach((r) => {
+    const statuses = parseStatuses(r.issueStatus);
+    statuses.forEach((s) => {
+      const key = s.trim();
+      if (statusCount[key] !== undefined) statusCount[key] += 1;
+    });
+  });
+
+  const impactCount = {
+    High: 0,
+    Medium: 0,
+    Low: 0,
+  };
+  rows.forEach((r) => {
+    const key = String(r.impactLevel || "");
+    if (impactCount[key] !== undefined) impactCount[key] += 1;
+  });
+
+  const openCount = rows.filter((r) => hasStatus(r.issueStatus, "open")).length;
+  const closedCount = rows.filter((r) => hasStatus(r.issueStatus, "closed") || hasStatus(r.issueStatus, "resolved")).length;
+  const fixedCount = rows.filter((r) => String(r.modifiedVersion || "").trim()).length;
+  const unfixedCount = rows.length - fixedCount;
+
+  return {
+    env: [
+      { label: "Feature Phone", value: platformCount["Feature Phone"] || 0, color: "#f4a259" },
+      { label: "Smart Phone", value: platformCount["Smart Phone"] || 0, color: "#3f8cff" },
+      { label: "Dispatcher", value: platformCount.Dispatcher || 0, color: "#9b8cff" },
+    ],
+    qaStatus: [
+      { label: "Open", value: statusCount.Open || 0, color: "#3f8cff" },
+      { label: "Closed", value: statusCount.Closed || 0, color: "#7f8ea3" },
+      { label: "Resolved", value: statusCount.Resolved || 0, color: "#30d58f" },
+    ],
+    comparison: [
+      { label: "Open Issues", value: openCount, diff: `${openCount} currently open`, positive: openCount === 0 },
+      { label: "Closed/Resolved", value: closedCount, diff: `${closedCount} completed`, positive: true },
+      { label: "High Impact", value: impactCount.High || 0, diff: `${impactCount.High || 0} high-priority issues`, positive: (impactCount.High || 0) === 0 },
+      { label: "Fixed Version Filled", value: fixedCount, diff: `${unfixedCount} without fixed version`, positive: unfixedCount === 0 },
+    ],
+    assignees: [
+      { name: "High Impact", issues: impactCount.High || 0, color: "#ff6b6b", tags: [`Medium ${impactCount.Medium || 0}`, `Low ${impactCount.Low || 0}`] },
+      { name: "Medium Impact", issues: impactCount.Medium || 0, color: "#f7c948", tags: [`High ${impactCount.High || 0}`] },
+      { name: "Low Impact", issues: impactCount.Low || 0, color: "#30d58f", tags: [`Open ${openCount}`] },
+    ],
+  };
+}
+
 function getIssuePriority(field, value) {
   const table = {
     issueStatus: { open: 1, closed: 2, resolved: 2 },
@@ -834,7 +898,7 @@ function renderIssueTable(rows) {
       <tr>
         <td>${row.no}</td>
         <td>${row.impactLevel}</td>
-        <td>${row.platform}</td>
+        <td>${renderPlatformBadge(row.platform, escapeHtml)}</td>
         <td>${renderIssueStatusBadge(row.issueStatus, escapeHtml)}</td>
         <td>${row.occurrenceVersion}</td>
         <td>${row.modifiedVersion}</td>
@@ -848,6 +912,16 @@ function renderIssueTable(rows) {
   document.getElementById("issueTableCount").textContent = `${sortedRows.length} items`;
   syncSortArrowState();
   renderImpactSections(sortedRows, escapeHtml);
+}
+
+function renderPlatformBadge(platform, escapeHtml) {
+  const value = String(platform || "").trim();
+  const key = value.toLowerCase();
+  let cls = "platform-badge";
+  if (key === "feature phone") cls += " feature-phone";
+  else if (key === "smart phone") cls += " smart-phone";
+  else if (key === "dispatcher") cls += " dispatcher";
+  return `<span class="${cls}">${escapeHtml(value || "-")}</span>`;
 }
 
 function renderIssueStatusBadge(status, escapeHtml) {
@@ -891,7 +965,7 @@ function renderImpactList(targetId, countId, rows, escapeHtml) {
             ? `<a class="issue-link" href="${escapeHtml(row.issueUrl)}" target="_blank" rel="noopener noreferrer">${escapeHtml(row.title)}</a>`
             : `<span>${escapeHtml(row.title)}</span>`
         }
-        <span class="impact-meta">${escapeHtml(row.platform)} | ${escapeHtml(row.issueStatus)}</span>
+        <span class="impact-meta">${renderPlatformBadge(row.platform, escapeHtml)} | ${escapeHtml(row.issueStatus)}</span>
       </li>
     `,
     )
@@ -929,6 +1003,7 @@ function filterIssueRows(rows) {
 
 function toggleSections(viewKey) {
   const isIssueList = viewKey === "issueList";
+  document.querySelector(".kpi-grid").classList.toggle("hidden", isIssueList);
   document.getElementById("midGrid").classList.toggle("hidden", isIssueList);
   document.getElementById("bottomGrid").classList.toggle("hidden", isIssueList);
   document.getElementById("issueTableSection").classList.toggle("hidden", !isIssueList);
@@ -959,28 +1034,18 @@ function renderDashboard(baseData, viewKey) {
   document.getElementById("versionBadge").textContent = baseData.sprint;
   document.getElementById("title").textContent = data.reportTitle;
   document.getElementById("subtitle").textContent = `${startK} ~ ${endK} | ${baseData.unit} | ${data.subtitleSuffix}`;
-  if (viewKey === "issueList") {
-    const rows = data.issueRows || [];
+
+  if (viewKey === "issueList" || viewKey === "dashboard") {
+    const rows = baseData.views.issueList.issueRows || [];
     const total = rows.length;
     const closed = rows.filter((r) => hasStatus(r.issueStatus, "closed") || hasStatus(r.issueStatus, "resolved")).length;
-    const high = rows.filter(
-      (r) =>
-        hasStatus(r.issueStatus, "open") &&
-        String(r.impactLevel).toLowerCase() === "high",
-    ).length;
-    const medium = rows.filter(
-      (r) =>
-        hasStatus(r.issueStatus, "open") &&
-        String(r.impactLevel).toLowerCase() === "medium",
-    ).length;
-    const low = rows.filter(
-      (r) =>
-        hasStatus(r.issueStatus, "open") &&
-        String(r.impactLevel).toLowerCase() === "low",
-    ).length;
+    const high = rows.filter((r) => hasStatus(r.issueStatus, "open") && String(r.impactLevel).toLowerCase() === "high").length;
+    const medium = rows.filter((r) => hasStatus(r.issueStatus, "open") && String(r.impactLevel).toLowerCase() === "medium").length;
+    const low = rows.filter((r) => hasStatus(r.issueStatus, "open") && String(r.impactLevel).toLowerCase() === "low").length;
     const featurePhone = rows.filter((r) => String(r.platform).toLowerCase() === "feature phone").length;
     const smartPhone = rows.filter((r) => String(r.platform).toLowerCase() === "smart phone").length;
     const dispatcher = rows.filter((r) => String(r.platform).toLowerCase() === "dispatcher").length;
+
     setKpiCards([
       { label: "Total Issues", value: total, sub: "All imported issues" },
       { label: "Closed", value: closed, sub: "Issue Status = Closed + Resolved" },
@@ -991,6 +1056,10 @@ function renderDashboard(baseData, viewKey) {
       { label: "📱 Smart Phone", value: smartPhone, sub: "Platform count" },
       { label: "🖥️ Dispatcher", value: dispatcher, sub: "Platform count" },
     ]);
+
+    if (viewKey === "dashboard") {
+      document.getElementById("subtitle").textContent = `${startK} ~ ${endK} | ${baseData.unit} | Issue List`;
+    }
   } else {
     setKpiCards([
       { label: "Total Issues", value: data.totalIssues, sub: "All issues collected in current scope" },
@@ -1003,19 +1072,38 @@ function renderDashboard(baseData, viewKey) {
       { label: "🖥️ Dispatcher", value: "-", sub: "Issue List only" },
     ]);
   }
-  document.getElementById("compareTarget").textContent = `vs ${data.compareTarget}`;
 
-  makeDonut(document.getElementById("envDonut"), data.env);
-  makeDonut(document.getElementById("qaDonut"), data.qaStatus);
-  renderLegend(document.getElementById("envLegend"), data.env);
-  renderLegend(document.getElementById("qaLegend"), data.qaStatus);
-  renderComparison(document.getElementById("compareGrid"), data.comparison);
-  renderAssignees(document.getElementById("assigneeList"), data.assignees);
-  renderIssueTable(filterIssueRows(data.issueRows || []));
+  const issueRows = baseData.views.issueList.issueRows || [];
+  const widgets = viewKey === "dashboard" ? buildDashboardWidgetsFromIssues(issueRows) : data;
+
+  if (viewKey === "dashboard") {
+    document.getElementById("envCardTitle").textContent = "Platform Distribution";
+    document.getElementById("qaCardTitle").textContent = "Issue Status Distribution";
+    document.getElementById("compareCardTitle").textContent = "Issue Summary";
+    document.getElementById("assigneeCardTitle").textContent = "Impact Insights";
+    document.getElementById("envDonutLabel").textContent = "PLT";
+    document.getElementById("qaDonutLabel").textContent = "STS";
+    document.getElementById("compareTarget").textContent = "based on current Issue List";
+  } else {
+    document.getElementById("envCardTitle").textContent = "Test Environment";
+    document.getElementById("qaCardTitle").textContent = "QA Status";
+    document.getElementById("compareCardTitle").textContent = "Sprint Comparison";
+    document.getElementById("assigneeCardTitle").textContent = "Assignee Insights";
+    document.getElementById("envDonutLabel").textContent = "ENV";
+    document.getElementById("qaDonutLabel").textContent = "QA";
+    document.getElementById("compareTarget").textContent = `vs ${data.compareTarget}`;
+  }
+
+  makeDonut(document.getElementById("envDonut"), widgets.env);
+  makeDonut(document.getElementById("qaDonut"), widgets.qaStatus);
+  renderLegend(document.getElementById("envLegend"), widgets.env);
+  renderLegend(document.getElementById("qaLegend"), widgets.qaStatus);
+  renderComparison(document.getElementById("compareGrid"), widgets.comparison);
+  renderAssignees(document.getElementById("assigneeList"), widgets.assignees);
+  renderIssueTable(filterIssueRows(baseData.views.issueList.issueRows || []));
   toggleSections(viewKey);
   setActiveMenu(viewKey);
 }
-
 function getIssueRows() {
   return dashboardData.views.issueList.issueRows || [];
 }
@@ -1347,3 +1435,4 @@ if (window.location.hash === "#issueList") {
 } else {
   renderDashboard(dashboardData, "dashboard");
 }
+

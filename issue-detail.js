@@ -44,6 +44,7 @@ if (!current) {
   alert("Issue not found.");
   window.location.href = "./index.html#issueList";
 }
+let workingAttachments = Array.isArray(current.attachments) ? [...current.attachments] : [];
 
 form.elements.title.value = current.title || "";
 form.elements.impactLevel.value = current.impactLevel || "Medium";
@@ -78,6 +79,7 @@ function setFormMode(isEditMode) {
   saveBtn.classList.toggle("hidden", !isEditMode);
   editToggleBtn.classList.toggle("hidden", isEditMode);
   cancelBtn.textContent = isEditMode ? "Cancel Edit" : "Back to List";
+  attachmentPreviewList.classList.toggle("edit-mode", isEditMode);
 
   const statusOptions = Array.from(form.querySelectorAll(".status-check-group .status-option"));
   statusOptions.forEach((label) => {
@@ -92,7 +94,7 @@ function renderDescriptionPreview() {
 }
 
 function renderAttachmentPreview(row) {
-  const files = Array.isArray(row.attachments) ? row.attachments : [];
+  const files = Array.isArray(workingAttachments) ? workingAttachments : [];
   if (!files.length) {
     attachmentPreviewList.innerHTML = '<p class="attachment-empty">No attachment</p>';
     return;
@@ -101,19 +103,20 @@ function renderAttachmentPreview(row) {
   attachmentPreviewList.innerHTML = files
     .map((file, idx) => {
       const isImage = String(file.type || "").startsWith("image/");
-      const isVideo = String(file.type || "").startsWith("video/");
       const name = file.name || `attachment-${idx + 1}`;
       const src = file.dataUrl || "#";
 
-      let media = '<div class="attachment-generic">Preview unavailable</div>';
+      let media = '<div class="attachment-generic">Preview not available for this file type. Use download.</div>';
       if (isImage) media = `<img class="attachment-media" src="${src}" alt="${name}" />`;
-      if (isVideo) media = `<video class="attachment-media" src="${src}" controls preload="metadata"></video>`;
 
       return `
         <article class="attachment-preview-item">
           <p class="attachment-title">${name}</p>
           ${media}
-          <a class="entry-btn secondary attachment-download" href="${src}" download="${name}">Download</a>
+          <div class="attachment-actions">
+            <a class="entry-btn secondary attachment-download" href="${src}" download="${name}">Download</a>
+            <button class="entry-btn danger-btn attachment-remove-btn" type="button" data-attachment-idx="${idx}">Delete</button>
+          </div>
         </article>
       `;
     })
@@ -122,6 +125,16 @@ function renderAttachmentPreview(row) {
 
 editToggleBtn.addEventListener("click", () => {
   setFormMode(true);
+});
+
+attachmentPreviewList.addEventListener("click", (event) => {
+  const btn = event.target.closest(".attachment-remove-btn");
+  if (!btn) return;
+  const idx = Number(btn.dataset.attachmentIdx);
+  if (Number.isNaN(idx)) return;
+  workingAttachments = workingAttachments.filter((_, i) => i !== idx);
+  renderAttachmentPreview(current);
+  if (!workingAttachments.length) attachmentPreviewList.classList.add("edit-mode");
 });
 
 renderDescriptionPreview();
@@ -148,6 +161,7 @@ form.addEventListener("submit", (event) => {
       occurrenceVersion: String(fd.get("occurrenceVersion") || ""),
       modifiedVersion: String(fd.get("modifiedVersion") || ""),
       description: String(fd.get("description") || "").trim(),
+      attachments: workingAttachments,
       updatedAt: new Date().toISOString(),
     };
   });

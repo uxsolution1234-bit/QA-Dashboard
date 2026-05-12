@@ -1094,7 +1094,7 @@ function renderAttachmentCell(row, escapeHtml) {
   return files
     .map(
       (file, idx) =>
-        `<a class="attachment-link" href="${escapeHtml(file.dataUrl || "#")}" target="_blank" rel="noopener noreferrer">File ${idx + 1}</a>`,
+        `<a class="attachment-link" href="${escapeHtml(file.dataUrl || "#")}" download="${escapeHtml(file.name || `attachment-${idx + 1}`)}">Download ${idx + 1}</a>`,
     )
     .join("<br/>");
 }

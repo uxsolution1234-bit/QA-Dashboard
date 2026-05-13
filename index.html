@@ -128,7 +128,7 @@
             <span class="chip" id="issueTableCount">0 items</span>
           </div>
           <div class="issue-actions">
-            <a class="entry-btn" href="./issue-create.html">Add Issue</a>
+            <a class="entry-btn" id="addIssueBtn" href="./issue-create.html">Add Issue</a>
             <button class="entry-btn danger-btn" id="deleteSelectedBtn" type="button">Delete Selected</button>
             <button class="entry-btn secondary" id="exportExcelBtn" type="button">Download Issue List</button>
             <button class="entry-btn secondary" id="importExcelBtn" type="button">Upload Excel/CSV</button>
@@ -184,6 +184,9 @@
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="./supabase-config.js"></script>
+    <script src="./data-store.js"></script>
     <script src="./script.js"></script>
   </body>
 </html>

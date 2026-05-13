@@ -1,32 +1,11 @@
-﻿const CURRENT_PROJECT_KEY = "grid_current_project";
-
-const PROJECT_STORAGE_KEYS = {
-  "GRID R15": "grid_r15_issue_rows",
-  "Compact 고도화": "compact_advanced_issue_rows",
-};
-
+const dataStore = window.QADataStore;
 const params = new URLSearchParams(window.location.search);
 const projectFromQuery = String(params.get("project") || "").trim();
-const currentProject = projectFromQuery || String(localStorage.getItem(CURRENT_PROJECT_KEY) || "").trim() || "GRID R15";
-localStorage.setItem(CURRENT_PROJECT_KEY, currentProject);
+const currentProject = projectFromQuery || dataStore.getCurrentProject();
+dataStore.setCurrentProject(currentProject);
 
-function getIssueStorageKey() {
-  return PROJECT_STORAGE_KEYS[currentProject] || `project_rows_${encodeURIComponent(currentProject)}`;
-}
-
-function loadRows() {
-  const raw = localStorage.getItem(getIssueStorageKey());
-  if (!raw) return [];
-  try {
-    const parsed = JSON.parse(raw);
-    return Array.isArray(parsed) ? parsed : [];
-  } catch (_) {
-    return [];
-  }
-}
-
-function saveRows(rows) {
-  localStorage.setItem(getIssueStorageKey(), JSON.stringify(rows));
+function buildBackToListUrl() {
+  return `./index.html?project=${encodeURIComponent(currentProject)}#issueList`;
 }
 
 function fileToDataUrl(file) {
@@ -38,12 +17,17 @@ function fileToDataUrl(file) {
   });
 }
 
+function escapeHtml(str) {
+  return String(str ?? "").replace(/[&<>"']/g, (s) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[s]);
+}
+
 const rowKey = params.get("rowKey");
 const issueId = params.get("issueId");
 const form = document.getElementById("issueDetailForm");
 const editToggleBtn = document.getElementById("editToggleBtn");
 const saveBtn = document.getElementById("saveBtn");
 const cancelBtn = document.getElementById("cancelBtn");
+const backBtns = document.querySelectorAll('a[href="./index.html#issueList"]');
 const descriptionPreview = document.getElementById("descriptionPreview");
 const attachmentPreviewList = document.getElementById("attachmentPreviewList");
 const detailAttachmentInput = document.getElementById("detailAttachmentInput");
@@ -52,38 +36,31 @@ const commentInput = document.getElementById("commentInput");
 const commentAddBtn = document.getElementById("commentAddBtn");
 const commentList = document.getElementById("commentList");
 
-const rows = loadRows();
-const current =
-  rows.find((r) => String(r.issueId || "") === String(issueId || "")) ||
-  rows.find((r) => String(r.rowKey) === String(rowKey));
-
-if (!current) {
-  alert("Issue not found.");
-  window.location.href = "./index.html#issueList";
-}
-let workingAttachments = Array.isArray(current.attachments) ? [...current.attachments] : [];
-let workingComments = Array.isArray(current.comments) ? [...current.comments] : [];
-
-form.elements.title.value = current.title || "";
-form.elements.impactLevel.value = current.impactLevel || "Medium";
-form.elements.platform.value = current.platform || "Dispatcher";
-form.elements.occurrenceVersion.value = current.occurrenceVersion || "";
-form.elements.modifiedVersion.value = current.modifiedVersion || "";
-form.elements.description.value =
-  current.description ||
-  `+ Step :\n\n+ Actual Result :\n\n+ Expected Result :\n\n+ note :`;
-
-const statusSet = new Set(
-  String(current.issueStatus || "Open")
-    .split(",")
-    .map((s) => s.trim())
-    .filter(Boolean),
-);
-Array.from(form.querySelectorAll('input[name="issueStatusMulti"]')).forEach((el) => {
-  el.checked = statusSet.has(el.value);
+backBtns.forEach((btn) => {
+  btn.href = buildBackToListUrl();
 });
 
-function setFormMode(isEditMode) {
+let rows = [];
+let current = null;
+let workingAttachments = [];
+let workingComments = [];
+let isEditMode = false;
+let lastRemoteUpdatedAt = null;
+
+function parseStatuses(raw) {
+  return String(raw || "")
+    .split(",")
+    .map((s) => s.trim())
+    .filter(Boolean);
+}
+
+async function saveAllRows(nextRows) {
+  rows = nextRows;
+  await dataStore.saveRows(rows, currentProject);
+}
+
+function setFormMode(editMode) {
+  isEditMode = Boolean(editMode);
   form.classList.toggle("detail-preview-mode", !isEditMode);
 
   Array.from(form.elements).forEach((el) => {
@@ -99,6 +76,7 @@ function setFormMode(isEditMode) {
   saveBtn.classList.toggle("hidden", !isEditMode);
   editToggleBtn.classList.toggle("hidden", isEditMode);
   cancelBtn.textContent = isEditMode ? "Cancel Edit" : "Back to List";
+  cancelBtn.href = buildBackToListUrl();
   attachmentPreviewList.classList.toggle("edit-mode", isEditMode);
   detailAttachmentInput.classList.toggle("hidden", !isEditMode);
   detailAttachmentHint.classList.toggle("hidden", !isEditMode);
@@ -110,18 +88,6 @@ function setFormMode(isEditMode) {
     if (!input) return;
     label.classList.toggle("hidden", !isEditMode && !input.checked);
   });
-}
-
-function escapeHtml(str) {
-  return String(str ?? "").replace(/[&<>"']/g, (s) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[s]);
-}
-
-function persistComments() {
-  const target = rows.find((r) => String(r.rowKey) === String(rowKey));
-  if (!target) return;
-  target.comments = [...workingComments];
-  target.updatedAt = new Date().toISOString();
-  saveRows(rows);
 }
 
 function renderComments() {
@@ -149,7 +115,7 @@ function renderDescriptionPreview() {
   descriptionPreview.textContent = form.elements.description.value || "-";
 }
 
-function renderAttachmentPreview(row) {
+function renderAttachmentPreview() {
   const files = Array.isArray(workingAttachments) ? workingAttachments : [];
   if (!files.length) {
     attachmentPreviewList.innerHTML = '<p class="attachment-empty">No attachment</p>';
@@ -167,16 +133,85 @@ function renderAttachmentPreview(row) {
 
       return `
         <article class="attachment-preview-item">
-          <p class="attachment-title">${name}</p>
+          <p class="attachment-title">${escapeHtml(name)}</p>
           ${media}
           <div class="attachment-actions">
-            <a class="entry-btn secondary attachment-download" href="${src}" download="${name}">Download</a>
+            <a class="entry-btn secondary attachment-download" href="${src}" download="${escapeHtml(name)}">Download</a>
             <button class="entry-btn danger-btn attachment-remove-btn" type="button" data-attachment-idx="${idx}">Delete</button>
           </div>
         </article>
       `;
     })
     .join("");
+}
+
+function bindCurrentToForm() {
+  form.elements.title.value = current.title || "";
+  form.elements.impactLevel.value = current.impactLevel || "Medium";
+  form.elements.platform.value = current.platform || "Dispatcher";
+  form.elements.occurrenceVersion.value = current.occurrenceVersion || "";
+  form.elements.modifiedVersion.value = current.modifiedVersion || "";
+  form.elements.description.value =
+    current.description ||
+    `+ Step :\n\n+ Actual Result :\n\n+ Expected Result :\n\n+ note :`;
+
+  const statusSet = new Set(parseStatuses(current.issueStatus || "Open"));
+  Array.from(form.querySelectorAll('input[name="issueStatusMulti"]')).forEach((el) => {
+    el.checked = statusSet.has(el.value);
+  });
+
+  workingAttachments = Array.isArray(current.attachments) ? [...current.attachments] : [];
+  workingComments = Array.isArray(current.comments) ? [...current.comments] : [];
+}
+
+async function persistComments() {
+  const nextRows = rows.map((r) => {
+    if (String(r.rowKey || "") !== String(current.rowKey || "")) return r;
+    return {
+      ...r,
+      comments: [...workingComments],
+      updatedAt: new Date().toISOString(),
+    };
+  });
+  await saveAllRows(nextRows);
+}
+
+async function bootstrap() {
+  rows = await dataStore.loadRows(currentProject);
+  current =
+    rows.find((r) => String(r.issueId || "") === String(issueId || "")) ||
+    rows.find((r) => String(r.rowKey || "") === String(rowKey || ""));
+
+  if (!current) {
+    alert("Issue not found.");
+    window.location.href = buildBackToListUrl();
+    return;
+  }
+
+  bindCurrentToForm();
+  renderDescriptionPreview();
+  renderAttachmentPreview();
+  renderComments();
+  setFormMode(false);
+  lastRemoteUpdatedAt = await dataStore.getRemoteUpdatedAt(currentProject);
+}
+
+async function refreshFromRemoteIfNeeded() {
+  if (!dataStore.isCollabEnabled() || isEditMode) return;
+  const remoteUpdatedAt = await dataStore.getRemoteUpdatedAt(currentProject);
+  if (!remoteUpdatedAt || !lastRemoteUpdatedAt || remoteUpdatedAt === lastRemoteUpdatedAt) return;
+  lastRemoteUpdatedAt = remoteUpdatedAt;
+
+  rows = await dataStore.loadRows(currentProject);
+  current =
+    rows.find((r) => String(r.issueId || "") === String(issueId || "")) ||
+    rows.find((r) => String(r.rowKey || "") === String(rowKey || ""));
+  if (!current) return;
+  bindCurrentToForm();
+  renderDescriptionPreview();
+  renderAttachmentPreview();
+  renderComments();
+  setFormMode(false);
 }
 
 editToggleBtn.addEventListener("click", () => {
@@ -189,8 +224,7 @@ attachmentPreviewList.addEventListener("click", (event) => {
   const idx = Number(btn.dataset.attachmentIdx);
   if (Number.isNaN(idx)) return;
   workingAttachments = workingAttachments.filter((_, i) => i !== idx);
-  renderAttachmentPreview(current);
-  if (!workingAttachments.length) attachmentPreviewList.classList.add("edit-mode");
+  renderAttachmentPreview();
 });
 
 detailAttachmentInput.addEventListener("change", async () => {
@@ -209,11 +243,10 @@ detailAttachmentInput.addEventListener("change", async () => {
   workingAttachments = [...workingAttachments, ...next];
   detailAttachmentHint.textContent = `${files.length} file(s) added`;
   detailAttachmentInput.value = "";
-  renderAttachmentPreview(current);
-  attachmentPreviewList.classList.add("edit-mode");
+  renderAttachmentPreview();
 });
 
-commentAddBtn.addEventListener("click", () => {
+commentAddBtn.addEventListener("click", async () => {
   const text = String(commentInput.value || "").trim();
   if (!text) return;
   workingComments.unshift({
@@ -222,10 +255,10 @@ commentAddBtn.addEventListener("click", () => {
   });
   commentInput.value = "";
   renderComments();
-  persistComments();
+  await persistComments();
 });
 
-commentList.addEventListener("click", (event) => {
+commentList.addEventListener("click", async (event) => {
   const editBtn = event.target.closest(".comment-edit-btn");
   if (editBtn) {
     const idx = Number(editBtn.dataset.commentIdx);
@@ -236,7 +269,7 @@ commentList.addEventListener("click", (event) => {
     if (!text) return;
     workingComments[idx] = { ...workingComments[idx], text };
     renderComments();
-    persistComments();
+    await persistComments();
     return;
   }
 
@@ -246,16 +279,11 @@ commentList.addEventListener("click", (event) => {
     if (Number.isNaN(idx)) return;
     workingComments = workingComments.filter((_, i) => i !== idx);
     renderComments();
-    persistComments();
+    await persistComments();
   }
 });
 
-renderDescriptionPreview();
-renderAttachmentPreview(current);
-renderComments();
-setFormMode(false);
-
-form.addEventListener("submit", (event) => {
+form.addEventListener("submit", async (event) => {
   event.preventDefault();
   const fd = new FormData(form);
   const statuses = Array.from(form.querySelectorAll('input[name="issueStatusMulti"]:checked')).map((el) => el.value);
@@ -264,8 +292,8 @@ form.addEventListener("submit", (event) => {
     return;
   }
 
-  const updated = rows.map((row) => {
-    if (String(row.rowKey) !== String(rowKey)) return row;
+  const nextRows = rows.map((row) => {
+    if (String(row.rowKey || "") !== String(current.rowKey || "")) return row;
     return {
       ...row,
       title: String(fd.get("title") || "").trim(),
@@ -281,11 +309,17 @@ form.addEventListener("submit", (event) => {
     };
   });
 
-  saveRows(updated);
+  await saveAllRows(nextRows);
   const nextIssueId = String(current.issueId || issueId || "");
   if (nextIssueId) {
-    window.location.href = `./issue-detail.html?issueId=${encodeURIComponent(nextIssueId)}`;
+    window.location.href = `./issue-detail.html?issueId=${encodeURIComponent(nextIssueId)}&project=${encodeURIComponent(currentProject)}`;
   } else {
-    window.location.href = `./issue-detail.html?rowKey=${encodeURIComponent(String(rowKey || ""))}`;
+    window.location.href = `./issue-detail.html?rowKey=${encodeURIComponent(String(rowKey || ""))}&project=${encodeURIComponent(currentProject)}`;
   }
 });
+
+bootstrap();
+
+window.setInterval(async () => {
+  await refreshFromRemoteIfNeeded();
+}, 10000);

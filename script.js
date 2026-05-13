@@ -690,32 +690,14 @@
   },
 };
 
-const CURRENT_PROJECT_KEY = "grid_current_project";
 let currentView = "dashboard";
-let currentProject = String(localStorage.getItem(CURRENT_PROJECT_KEY) || "GRID R15");
+const dataStore = window.QADataStore;
+let currentProject = dataStore.getCurrentProject();
 const issueSortState = { field: null, dir: null };
 const INITIAL_GRID_R15_ROWS = JSON.parse(JSON.stringify(dashboardData.views.issueList.issueRows || []));
-const PROJECT_STORAGE_KEYS = {
-  "GRID R15": {
-    rows: "grid_r15_issue_rows",
-    orderFlag: "grid_r15_issue_order_reversed_v1",
-  },
-  "Compact 고도화": {
-    rows: "compact_advanced_issue_rows",
-    orderFlag: "compact_advanced_issue_order_reversed_v1",
-  },
-};
 let issueSearchQuery = "";
 const selectedIssueKeys = new Set();
-
-function getProjectStorageMeta(project = currentProject) {
-  return (
-    PROJECT_STORAGE_KEYS[project] || {
-      rows: `project_rows_${encodeURIComponent(project)}`,
-      orderFlag: `project_order_${encodeURIComponent(project)}`,
-    }
-  );
-}
+let issueRowsCache = [];
 
 function getIssueIdPrefix(project = currentProject) {
   if (project === "GRID R15") return "R15";
@@ -1231,9 +1213,11 @@ function renderDashboard(baseData, viewKey) {
     versionSelect.appendChild(opt);
   }
   if (versionSelect) versionSelect.value = projectLabel;
-  localStorage.setItem(CURRENT_PROJECT_KEY, projectLabel);
+  dataStore.setCurrentProject(projectLabel);
   document.getElementById("title").textContent = `QA Sprint Report - ${projectLabel}`;
   document.getElementById("subtitle").textContent = `${startK} ~ ${endK} | ${baseData.unit} | ${data.subtitleSuffix}`;
+  const addIssueBtn = document.getElementById("addIssueBtn");
+  if (addIssueBtn) addIssueBtn.href = `./issue-create.html?project=${encodeURIComponent(projectLabel)}`;
 
   const rows = getIssueRows();
 
@@ -1306,7 +1290,7 @@ function renderDashboard(baseData, viewKey) {
   setActiveMenu(viewKey);
 }
 function getIssueRows() {
-  return dashboardData.views.issueList.issueRows || [];
+  return issueRowsCache;
 }
 
 function ensureRowKeys(rows) {
@@ -1350,38 +1334,23 @@ function assignIssueIds(rows) {
   }));
 }
 
-function setIssueRows(rows) {
+async function setIssueRows(rows) {
   const normalized = assignIssueIds(resequenceRows(ensureRowKeys(rows)));
+  issueRowsCache = normalized;
   dashboardData.views.issueList.issueRows = normalized;
-  const storageMeta = getProjectStorageMeta();
-  localStorage.setItem(storageMeta.rows, JSON.stringify(normalized));
+  await dataStore.saveRows(normalized, currentProject);
   const keySet = new Set(normalized.map((r) => String(r.rowKey || "")));
   Array.from(selectedIssueKeys).forEach((key) => {
     if (!keySet.has(key)) selectedIssueKeys.delete(key);
   });
 }
 
-function hydrateIssueRows() {
-  const storageMeta = getProjectStorageMeta();
-  const raw = localStorage.getItem(storageMeta.rows);
-  let rows;
-  if (!raw) {
+async function hydrateIssueRows() {
+  let rows = await dataStore.loadRows(currentProject);
+  if (!Array.isArray(rows) || !rows.length) {
     rows = currentProject === "GRID R15" ? INITIAL_GRID_R15_ROWS : [];
-  } else {
-    try {
-      const parsed = JSON.parse(raw);
-      rows = Array.isArray(parsed) ? parsed : [];
-    } catch (_) {
-      rows = currentProject === "GRID R15" ? INITIAL_GRID_R15_ROWS : [];
-    }
   }
-
-  if (currentProject === "GRID R15" && localStorage.getItem(storageMeta.orderFlag) !== "1") {
-    rows = [...rows].reverse();
-    localStorage.setItem(storageMeta.orderFlag, "1");
-  }
-
-  setIssueRows(rows);
+  await setIssueRows(rows);
 }
 
 function setupMenu(baseData) {
@@ -1398,13 +1367,14 @@ function setupMenu(baseData) {
 function setupProjectSelector(baseData) {
   const select = document.getElementById("versionBadge");
   if (!select) return;
-  select.addEventListener("change", (event) => {
+  select.addEventListener("change", async (event) => {
     const next = String(event.target.value || "GRID R15");
     currentProject = next;
+    dataStore.setCurrentProject(next);
     issueSearchQuery = "";
     issueSortState.field = null;
     issueSortState.dir = null;
-    hydrateIssueRows();
+    await hydrateIssueRows();
     renderDashboard(baseData, currentView);
   });
 }
@@ -1428,7 +1398,7 @@ function setupKpiScroll() {
 
 function setupIssueSort(baseData) {
   const section = document.getElementById("issueTableSection");
-  section.addEventListener("click", (event) => {
+  section.addEventListener("click", async (event) => {
     const button = event.target.closest(".sort-arrow-btn");
     if (!button) return;
     issueSortState.field = button.dataset.sortField;
@@ -1465,7 +1435,7 @@ function setupIssueDelete() {
     }
   });
 
-  section.addEventListener("click", (event) => {
+  section.addEventListener("click", async (event) => {
     const copyBtn = event.target.closest(".issue-id-copy-btn");
     if (copyBtn) {
       const text = String(copyBtn.dataset.copyLink || "").trim();
@@ -1487,7 +1457,7 @@ function setupIssueDelete() {
         const nextStatuses = parseStatuses(row.issueStatus).filter((s) => s.trim().toLowerCase() !== statusToRemove);
         return { ...row, issueStatus: nextStatuses.join(", ") };
       });
-      setIssueRows(rows);
+      await setIssueRows(rows);
       renderDashboard(dashboardData, "issueList");
       return;
     }
@@ -1500,7 +1470,7 @@ function setupIssueDelete() {
       }
       const rows = getIssueRows().filter((row) => !selectedIssueKeys.has(String(row.rowKey || "")));
       selectedIssueKeys.clear();
-      setIssueRows(rows);
+      await setIssueRows(rows);
       renderDashboard(dashboardData, "issueList");
       return;
     }
@@ -1511,7 +1481,7 @@ function setupIssueDelete() {
     if (!rowKey) return;
     selectedIssueKeys.delete(String(rowKey));
     const rows = getIssueRows().filter((row) => String(row.rowKey) !== String(rowKey));
-    setIssueRows(rows);
+    await setIssueRows(rows);
     renderDashboard(dashboardData, "issueList");
   });
 }
@@ -1690,7 +1660,7 @@ function setupImportExcel() {
         nextRows = [...uniqueImported, ...existingRows];
       }
 
-      setIssueRows(nextRows);
+      await setIssueRows(nextRows);
       issueSortState.field = null;
       issueSortState.dir = null;
       issueSearchQuery = "";
@@ -1736,18 +1706,47 @@ function setupIssueSearch(baseData) {
   });
 }
 
-setupMenu(dashboardData);
-setupProjectSelector(dashboardData);
-setupIssueSort(dashboardData);
-setupKpiScroll();
-hydrateIssueRows();
-setupIssueDelete();
-setupExportExcel();
-setupImportExcel();
-setupIssueSearch(dashboardData);
-if (window.location.hash === "#issueList") {
-  renderDashboard(dashboardData, "issueList");
-} else {
-  renderDashboard(dashboardData, "dashboard");
+let lastRemoteUpdatedAt = null;
+
+async function refreshFromRemoteIfNeeded() {
+  if (!dataStore.isCollabEnabled()) return;
+  const remoteUpdatedAt = await dataStore.getRemoteUpdatedAt(currentProject);
+  if (!remoteUpdatedAt) return;
+  if (lastRemoteUpdatedAt && remoteUpdatedAt === lastRemoteUpdatedAt) return;
+
+  lastRemoteUpdatedAt = remoteUpdatedAt;
+  await hydrateIssueRows();
+  renderDashboard(dashboardData, currentView);
 }
+
+function startAutoSyncPolling() {
+  if (!dataStore.isCollabEnabled()) return;
+  window.setInterval(async () => {
+    await refreshFromRemoteIfNeeded();
+  }, 10000);
+}
+
+async function initializeApp() {
+  await dataStore.init();
+  setupMenu(dashboardData);
+  setupProjectSelector(dashboardData);
+  setupIssueSort(dashboardData);
+  setupKpiScroll();
+  setupIssueDelete();
+  setupExportExcel();
+  setupImportExcel();
+  setupIssueSearch(dashboardData);
+
+  await hydrateIssueRows();
+  lastRemoteUpdatedAt = await dataStore.getRemoteUpdatedAt(currentProject);
+
+  if (window.location.hash === "#issueList") {
+    renderDashboard(dashboardData, "issueList");
+  } else {
+    renderDashboard(dashboardData, "dashboard");
+  }
+  startAutoSyncPolling();
+}
+
+initializeApp();
 

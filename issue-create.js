@@ -1,36 +1,10 @@
-﻿const CURRENT_PROJECT_KEY = "grid_current_project";
-
-const PROJECT_STORAGE_KEYS = {
-  "GRID R15": "grid_r15_issue_rows",
-  "Compact 고도화": "compact_advanced_issue_rows",
-};
-
-function getCurrentProject() {
-  const params = new URLSearchParams(window.location.search);
-  const fromQuery = String(params.get("project") || "").trim();
-  const fromStorage = String(localStorage.getItem(CURRENT_PROJECT_KEY) || "").trim();
-  return fromQuery || fromStorage || "GRID R15";
-}
-
-function getIssueStorageKey() {
-  const project = getCurrentProject();
-  return PROJECT_STORAGE_KEYS[project] || `project_rows_${encodeURIComponent(project)}`;
-}
-
-function loadRows() {
-  const raw = localStorage.getItem(getIssueStorageKey());
-  if (!raw) return [];
-  try {
-    const parsed = JSON.parse(raw);
-    return Array.isArray(parsed) ? parsed : [];
-  } catch (_) {
-    return [];
-  }
-}
-
-function saveRows(rows) {
-  localStorage.setItem(getIssueStorageKey(), JSON.stringify(rows));
-}
+const dataStore = window.QADataStore;
+const currentProject = dataStore.getCurrentProject();
+dataStore.setCurrentProject(currentProject);
+const backToListUrl = `./index.html?project=${encodeURIComponent(currentProject)}#issueList`;
+document.querySelectorAll('a[href="./index.html#issueList"]').forEach((el) => {
+  el.href = backToListUrl;
+});
 
 function fileToDataUrl(file) {
   return new Promise((resolve, reject) => {
@@ -57,7 +31,7 @@ document.getElementById("issueCreateForm").addEventListener("submit", async (eve
   event.preventDefault();
   const form = event.currentTarget;
   const fd = new FormData(form);
-  const rows = loadRows();
+  const rows = await dataStore.loadRows(currentProject);
   const rowKey = `${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
   const files = Array.from(attachmentInput.files || []);
   const statuses = Array.from(form.querySelectorAll('input[name="issueStatusMulti"]:checked')).map((el) => el.value);
@@ -96,6 +70,6 @@ document.getElementById("issueCreateForm").addEventListener("submit", async (eve
     no: idx + 1,
   }));
 
-  saveRows(resequenced);
-  window.location.href = "./index.html#issueList";
+  await dataStore.saveRows(resequenced, currentProject);
+  window.location.href = `./index.html?project=${encodeURIComponent(currentProject)}#issueList`;
 });

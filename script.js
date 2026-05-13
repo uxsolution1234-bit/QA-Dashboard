@@ -1012,7 +1012,14 @@ function renderIssueTable(rows) {
       <tr>
         <td><input type="checkbox" class="issue-row-check" data-row-key="${escapeHtml(rowKey)}" ${checked} /></td>
         <td>${idx + 1}</td>
-        <td><a class="issue-link" href="${detailUrl}">${escapeHtml(String(row.issueId || "-"))}</a></td>
+        <td>
+          <button
+            type="button"
+            class="issue-id-copy-btn issue-link"
+            data-copy-link="${escapeHtml(detailUrl)}"
+            title="Copy issue link"
+          >${escapeHtml(String(row.issueId || "-"))}</button>
+        </td>
         <td>${escapeHtml(getRegistrationDateText(row))}</td>
         <td>${renderImpactLevelCell(row.impactLevel, escapeHtml)}</td>
         <td>${renderPlatformBadge(row.platform, escapeHtml)}</td>
@@ -1021,7 +1028,6 @@ function renderIssueTable(rows) {
         <td>${row.modifiedVersion}</td>
         <td>${renderAttachmentCell(row, escapeHtml)}</td>
         <td><a class="issue-link" href="${detailUrl}">${escapeHtml(row.title)}</a></td>
-        <td><a class="issue-link" href="${detailUrl}">issue-detail.html?issueId=${escapeHtml(issueId || "-")}</a></td>
         <td><button class="delete-btn" data-row-key="${escapeHtml(rowKey)}" type="button">Delete</button></td>
       </tr>
     `;
@@ -1450,6 +1456,17 @@ function setupIssueDelete() {
   });
 
   section.addEventListener("click", (event) => {
+    const copyBtn = event.target.closest(".issue-id-copy-btn");
+    if (copyBtn) {
+      const text = String(copyBtn.dataset.copyLink || "").trim();
+      if (!text) return;
+      navigator.clipboard
+        .writeText(text)
+        .then(() => alert("Issue link copied."))
+        .catch(() => alert("Copy failed. Please copy manually."));
+      return;
+    }
+
     const removeBtn = event.target.closest(".status-remove-btn");
     if (removeBtn) {
       const rowKey = String(removeBtn.dataset.rowKey || "");

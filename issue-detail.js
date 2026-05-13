@@ -39,6 +39,7 @@ function fileToDataUrl(file) {
 }
 
 const rowKey = params.get("rowKey");
+const issueId = params.get("issueId");
 const form = document.getElementById("issueDetailForm");
 const editToggleBtn = document.getElementById("editToggleBtn");
 const saveBtn = document.getElementById("saveBtn");
@@ -52,7 +53,9 @@ const commentAddBtn = document.getElementById("commentAddBtn");
 const commentList = document.getElementById("commentList");
 
 const rows = loadRows();
-const current = rows.find((r) => String(r.rowKey) === String(rowKey));
+const current =
+  rows.find((r) => String(r.issueId || "") === String(issueId || "")) ||
+  rows.find((r) => String(r.rowKey) === String(rowKey));
 
 if (!current) {
   alert("Issue not found.");
@@ -279,5 +282,10 @@ form.addEventListener("submit", (event) => {
   });
 
   saveRows(updated);
-  window.location.href = `./issue-detail.html?rowKey=${encodeURIComponent(String(rowKey || ""))}&project=${encodeURIComponent(currentProject)}`;
+  const nextIssueId = String(current.issueId || issueId || "");
+  if (nextIssueId) {
+    window.location.href = `./issue-detail.html?issueId=${encodeURIComponent(nextIssueId)}`;
+  } else {
+    window.location.href = `./issue-detail.html?rowKey=${encodeURIComponent(String(rowKey || ""))}`;
+  }
 });

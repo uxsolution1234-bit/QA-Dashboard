@@ -723,6 +723,12 @@ function getIssueIdPrefix(project = currentProject) {
   return "ISS";
 }
 
+function buildIssueDetailUrl(rowKey, issueId) {
+  const compactIssueId = String(issueId || "").trim();
+  if (compactIssueId) return `./issue-detail.html?issueId=${encodeURIComponent(compactIssueId)}`;
+  return `./issue-detail.html?rowKey=${encodeURIComponent(String(rowKey || ""))}`;
+}
+
 function toKoreanDate(isoDate) {
   return isoDate.replaceAll("-", ".");
 }
@@ -1000,11 +1006,13 @@ function renderIssueTable(rows) {
       (row, idx) => {
         const rowKey = String(row.rowKey || "");
         const checked = selectedIssueKeys.has(rowKey) ? "checked" : "";
+        const issueId = String(row.issueId || "");
+        const detailUrl = buildIssueDetailUrl(rowKey, issueId);
         return `
       <tr>
         <td><input type="checkbox" class="issue-row-check" data-row-key="${escapeHtml(rowKey)}" ${checked} /></td>
         <td>${idx + 1}</td>
-        <td><a class="issue-link" href="./issue-detail.html?rowKey=${encodeURIComponent(rowKey)}&project=${encodeURIComponent(currentProject)}">${escapeHtml(String(row.issueId || "-"))}</a></td>
+        <td><a class="issue-link" href="${detailUrl}">${escapeHtml(String(row.issueId || "-"))}</a></td>
         <td>${escapeHtml(getRegistrationDateText(row))}</td>
         <td>${renderImpactLevelCell(row.impactLevel, escapeHtml)}</td>
         <td>${renderPlatformBadge(row.platform, escapeHtml)}</td>
@@ -1012,8 +1020,8 @@ function renderIssueTable(rows) {
         <td>${row.occurrenceVersion}</td>
         <td>${row.modifiedVersion}</td>
         <td>${renderAttachmentCell(row, escapeHtml)}</td>
-        <td><a class="issue-link" href="./issue-detail.html?rowKey=${encodeURIComponent(rowKey)}&project=${encodeURIComponent(currentProject)}">${escapeHtml(row.title)}</a></td>
-        <td><a class="issue-link" href="./issue-detail.html?rowKey=${encodeURIComponent(rowKey)}&project=${encodeURIComponent(currentProject)}">Open</a></td>
+        <td><a class="issue-link" href="${detailUrl}">${escapeHtml(row.title)}</a></td>
+        <td><a class="issue-link" href="${detailUrl}">issue-detail.html?issueId=${escapeHtml(issueId || "-")}</a></td>
         <td><button class="delete-btn" data-row-key="${escapeHtml(rowKey)}" type="button">Delete</button></td>
       </tr>
     `;
@@ -1495,7 +1503,7 @@ function setupExportExcel() {
       "Affected Version": row.occurrenceVersion,
       "Fixed Version": row.modifiedVersion,
       Title: row.title,
-      "Issue Link": `./issue-detail.html?rowKey=${encodeURIComponent(String(row.rowKey || ""))}&project=${encodeURIComponent(currentProject)}`,
+      "Issue Link": buildIssueDetailUrl(row.rowKey, row.issueId),
       URL: row.issueUrl || "",
     }));
 

@@ -732,6 +732,65 @@ button.issue-link {
   border-color: #3ca377;
 }
 
+.issue-status-select,
+.status-pill-select {
+  border: 1px solid transparent;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 700;
+  padding: 6px 28px 6px 12px;
+  outline: none;
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  background-image: linear-gradient(45deg, transparent 50%, currentColor 50%), linear-gradient(135deg, currentColor 50%, transparent 50%);
+  background-position: calc(100% - 14px) calc(50% - 1px), calc(100% - 9px) calc(50% - 1px);
+  background-size: 5px 5px, 5px 5px;
+  background-repeat: no-repeat;
+  cursor: pointer;
+}
+
+.issue-status-select {
+  min-width: 124px;
+}
+
+.status-pill-select {
+  min-width: 170px;
+}
+
+.issue-status-select.status-open,
+.status-pill-select.status-open {
+  background-color: #1f4d88;
+  color: #d7e7ff;
+  border-color: #3f78bf;
+}
+
+.issue-status-select.status-in-progress,
+.status-pill-select.status-in-progress {
+  background-color: #1e5f63;
+  color: #d8fbff;
+  border-color: #2f9ca3;
+}
+
+.issue-status-select.status-closed,
+.status-pill-select.status-closed {
+  background-color: #3a4250;
+  color: #d3d9e4;
+  border-color: #596274;
+}
+
+.issue-status-select.status-resolved,
+.status-pill-select.status-resolved {
+  background-color: #1f6a4b;
+  color: #d3f7e7;
+  border-color: #3ca377;
+}
+
+.detail-preview-mode .status-pill-select:disabled {
+  width: auto;
+  display: inline-block;
+}
+
 .impact-level-cell {
   display: inline-flex;
   align-items: center;
@@ -927,6 +986,14 @@ h3 {
   padding: 0;
   border-radius: 0;
   color: #d9e7fb;
+  box-shadow: none;
+}
+
+.detail-preview-mode .status-pill-select.jira-input:disabled {
+  border-width: 1px;
+  border-style: solid;
+  border-radius: 999px;
+  padding: 6px 28px 6px 12px;
   box-shadow: none;
 }
 

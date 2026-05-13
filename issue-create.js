@@ -17,6 +17,22 @@ function fileToDataUrl(file) {
 
 const attachmentInput = document.getElementById("attachmentInput");
 const attachmentHint = document.getElementById("attachmentHint");
+const issueStatusSelect = document.querySelector('select[name="issueStatus"]');
+
+function applyStatusSelectClass(selectEl) {
+  if (!selectEl) return;
+  const status = String(selectEl.value || "Open").toLowerCase();
+  selectEl.classList.remove("status-open", "status-in-progress", "status-closed", "status-resolved");
+  if (status === "in progress") selectEl.classList.add("status-in-progress");
+  else if (status === "closed") selectEl.classList.add("status-closed");
+  else if (status === "resolved") selectEl.classList.add("status-resolved");
+  else selectEl.classList.add("status-open");
+}
+
+if (issueStatusSelect) {
+  applyStatusSelectClass(issueStatusSelect);
+  issueStatusSelect.addEventListener("change", () => applyStatusSelectClass(issueStatusSelect));
+}
 
 attachmentInput.addEventListener("change", () => {
   const files = Array.from(attachmentInput.files || []);
@@ -34,12 +50,7 @@ document.getElementById("issueCreateForm").addEventListener("submit", async (eve
   const rows = await dataStore.loadRows(currentProject);
   const rowKey = `${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
   const files = Array.from(attachmentInput.files || []);
-  const statuses = Array.from(form.querySelectorAll('input[name="issueStatusMulti"]:checked')).map((el) => el.value);
-
-  if (!statuses.length) {
-    alert("Please select at least one Issue Status.");
-    return;
-  }
+  const issueStatus = String(fd.get("issueStatus") || "Open");
 
   const attachments = await Promise.all(
     files.map(async (file) => ({
@@ -54,7 +65,7 @@ document.getElementById("issueCreateForm").addEventListener("submit", async (eve
     createdAt: new Date().toISOString(),
     no: 1,
     date: "",
-    issueStatus: statuses.join(", "),
+    issueStatus,
     impactLevel: String(fd.get("impactLevel") || "Medium"),
     platform: String(fd.get("platform") || "Dispatcher"),
     occurrenceVersion: String(fd.get("occurrenceVersion") || ""),

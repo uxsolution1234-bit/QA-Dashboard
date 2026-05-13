@@ -54,6 +54,25 @@ function parseStatuses(raw) {
     .filter(Boolean);
 }
 
+function normalizeIssueStatus(raw) {
+  const statuses = parseStatuses(raw).map((s) => s.toLowerCase());
+  if (statuses.includes("open")) return "Open";
+  if (statuses.includes("in progress") || statuses.includes("inprogress") || statuses.includes("in-progress")) return "In Progress";
+  if (statuses.includes("closed")) return "Closed";
+  if (statuses.includes("resolved")) return "Resolved";
+  return "Open";
+}
+
+function applyStatusSelectClass(selectEl) {
+  if (!selectEl) return;
+  const status = String(selectEl.value || "Open").toLowerCase();
+  selectEl.classList.remove("status-open", "status-in-progress", "status-closed", "status-resolved");
+  if (status === "in progress") selectEl.classList.add("status-in-progress");
+  else if (status === "closed") selectEl.classList.add("status-closed");
+  else if (status === "resolved") selectEl.classList.add("status-resolved");
+  else selectEl.classList.add("status-open");
+}
+
 async function saveAllRows(nextRows) {
   rows = nextRows;
   await dataStore.saveRows(rows, currentProject);
@@ -81,13 +100,6 @@ function setFormMode(editMode) {
   detailAttachmentInput.classList.toggle("hidden", !isEditMode);
   detailAttachmentHint.classList.toggle("hidden", !isEditMode);
   if (!isEditMode) detailAttachmentHint.textContent = "";
-
-  const statusOptions = Array.from(form.querySelectorAll(".status-check-group .status-option"));
-  statusOptions.forEach((label) => {
-    const input = label.querySelector('input[name="issueStatusMulti"]');
-    if (!input) return;
-    label.classList.toggle("hidden", !isEditMode && !input.checked);
-  });
 }
 
 function renderComments() {
@@ -149,16 +161,14 @@ function bindCurrentToForm() {
   form.elements.title.value = current.title || "";
   form.elements.impactLevel.value = current.impactLevel || "Medium";
   form.elements.platform.value = current.platform || "Dispatcher";
+  form.elements.issueStatus.value = normalizeIssueStatus(current.issueStatus || "Open");
   form.elements.occurrenceVersion.value = current.occurrenceVersion || "";
   form.elements.modifiedVersion.value = current.modifiedVersion || "";
   form.elements.description.value =
     current.description ||
     `+ Step :\n\n+ Actual Result :\n\n+ Expected Result :\n\n+ note :`;
 
-  const statusSet = new Set(parseStatuses(current.issueStatus || "Open"));
-  Array.from(form.querySelectorAll('input[name="issueStatusMulti"]')).forEach((el) => {
-    el.checked = statusSet.has(el.value);
-  });
+  applyStatusSelectClass(form.elements.issueStatus);
 
   workingAttachments = Array.isArray(current.attachments) ? [...current.attachments] : [];
   workingComments = Array.isArray(current.comments) ? [...current.comments] : [];
@@ -216,6 +226,10 @@ async function refreshFromRemoteIfNeeded() {
 
 editToggleBtn.addEventListener("click", () => {
   setFormMode(true);
+});
+
+form.elements.issueStatus.addEventListener("change", () => {
+  applyStatusSelectClass(form.elements.issueStatus);
 });
 
 attachmentPreviewList.addEventListener("click", (event) => {
@@ -286,11 +300,6 @@ commentList.addEventListener("click", async (event) => {
 form.addEventListener("submit", async (event) => {
   event.preventDefault();
   const fd = new FormData(form);
-  const statuses = Array.from(form.querySelectorAll('input[name="issueStatusMulti"]:checked')).map((el) => el.value);
-  if (!statuses.length) {
-    alert("Please select at least one Issue Status.");
-    return;
-  }
 
   const nextRows = rows.map((row) => {
     if (String(row.rowKey || "") !== String(current.rowKey || "")) return row;
@@ -298,7 +307,7 @@ form.addEventListener("submit", async (event) => {
       ...row,
       title: String(fd.get("title") || "").trim(),
       impactLevel: String(fd.get("impactLevel") || "Medium"),
-      issueStatus: statuses.join(", "),
+      issueStatus: normalizeIssueStatus(String(fd.get("issueStatus") || "Open")),
       platform: String(fd.get("platform") || "Dispatcher"),
       occurrenceVersion: String(fd.get("occurrenceVersion") || ""),
       modifiedVersion: String(fd.get("modifiedVersion") || ""),

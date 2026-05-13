@@ -944,7 +944,7 @@ function getIssuePriority(field, value) {
     impactLevel: { high: 1, medium: 2, low: 3 },
     platform: { "feature phone": 1, "smart phone": 2, dispatcher: 3 },
   };
-  const normalized = String(value || "").trim().toLowerCase();
+  const normalized = field === "issueStatus" ? normalizeIssueStatus(value).toLowerCase() : String(value || "").trim().toLowerCase();
   return table[field]?.[normalized] ?? 999;
 }
 
@@ -953,6 +953,15 @@ function parseStatuses(value) {
     .split(",")
     .map((s) => s.trim())
     .filter(Boolean);
+}
+
+function normalizeIssueStatus(value) {
+  const statuses = parseStatuses(value).map((s) => s.toLowerCase());
+  if (statuses.includes("open")) return "Open";
+  if (statuses.includes("in progress") || statuses.includes("inprogress") || statuses.includes("in-progress")) return "In Progress";
+  if (statuses.includes("closed")) return "Closed";
+  if (statuses.includes("resolved")) return "Resolved";
+  return "Open";
 }
 
 function hasStatus(value, target) {
@@ -1015,7 +1024,7 @@ function renderIssueTable(rows) {
         <td>${escapeHtml(getRegistrationDateText(row))}</td>
         <td>${renderImpactLevelCell(row.impactLevel, escapeHtml)}</td>
         <td>${renderPlatformBadge(row.platform, escapeHtml)}</td>
-        <td>${renderIssueStatusBadge(row.issueStatus, escapeHtml, rowKey, true)}</td>
+        <td>${renderIssueStatusSelect(row.issueStatus, escapeHtml, rowKey)}</td>
         <td>${row.occurrenceVersion}</td>
         <td>${row.modifiedVersion}</td>
         <td>${renderAttachmentCell(row, escapeHtml)}</td>
@@ -1108,6 +1117,26 @@ function renderIssueStatusBadge(status, escapeHtml, rowKey = "", removable = fal
     })
     .join("");
   return `<span class="status-badges">${chips}</span>`;
+}
+
+function renderIssueStatusSelect(status, escapeHtml, rowKey) {
+  const selected = normalizeIssueStatus(status);
+  const cssSuffix =
+    selected === "In Progress"
+      ? "status-in-progress"
+      : selected === "Closed"
+      ? "status-closed"
+      : selected === "Resolved"
+      ? "status-resolved"
+      : "status-open";
+  return `
+    <select class="issue-status-select ${cssSuffix}" data-row-key="${escapeHtml(String(rowKey || ""))}">
+      <option value="Open" ${selected === "Open" ? "selected" : ""}>Open</option>
+      <option value="In Progress" ${selected === "In Progress" ? "selected" : ""}>In Progress</option>
+      <option value="Closed" ${selected === "Closed" ? "selected" : ""}>Closed</option>
+      <option value="Resolved" ${selected === "Resolved" ? "selected" : ""}>Resolved</option>
+    </select>
+  `;
 }
 
 function renderAttachmentCell(row, escapeHtml) {
@@ -1297,7 +1326,7 @@ function ensureRowKeys(rows) {
   return rows.map((row, idx) => ({
     ...row,
     rowKey: row.rowKey || `${row.no || idx + 1}_${row.date || ""}_${idx}`,
-    issueStatus: row.issueStatus,
+    issueStatus: normalizeIssueStatus(row.issueStatus),
   }));
 }
 
@@ -1411,9 +1440,9 @@ function setupIssueSort(baseData) {
 
 function setupIssueDelete() {
   const section = document.getElementById("issueTableSection");
-  section.addEventListener("change", (event) => {
+  section.addEventListener("change", async (event) => {
     const target = event.target;
-    if (!(target instanceof HTMLInputElement)) return;
+    if (!(target instanceof HTMLInputElement || target instanceof HTMLSelectElement)) return;
 
     if (target.id === "issueCheckAll") {
       const rowChecks = Array.from(section.querySelectorAll("#issueTableBody .issue-row-check"));
@@ -1432,6 +1461,16 @@ function setupIssueDelete() {
       if (target.checked) selectedIssueKeys.add(rowKey);
       else selectedIssueKeys.delete(rowKey);
       syncIssueCheckAllState();
+      return;
+    }
+
+    if (target.classList.contains("issue-status-select")) {
+      const rowKey = String(target.dataset.rowKey || "");
+      const nextStatus = normalizeIssueStatus(target.value);
+      if (!rowKey) return;
+      const rows = getIssueRows().map((row) => (String(row.rowKey || "") === rowKey ? { ...row, issueStatus: nextStatus } : row));
+      await setIssueRows(rows);
+      renderDashboard(dashboardData, "issueList");
     }
   });
 
@@ -1444,21 +1483,6 @@ function setupIssueDelete() {
         .writeText(text)
         .then(() => alert("Issue link copied."))
         .catch(() => alert("Copy failed. Please copy manually."));
-      return;
-    }
-
-    const removeBtn = event.target.closest(".status-remove-btn");
-    if (removeBtn) {
-      const rowKey = String(removeBtn.dataset.rowKey || "");
-      const statusToRemove = String(removeBtn.dataset.status || "").trim().toLowerCase();
-      if (!rowKey || !statusToRemove) return;
-      const rows = getIssueRows().map((row) => {
-        if (String(row.rowKey) !== rowKey) return row;
-        const nextStatuses = parseStatuses(row.issueStatus).filter((s) => s.trim().toLowerCase() !== statusToRemove);
-        return { ...row, issueStatus: nextStatuses.join(", ") };
-      });
-      await setIssueRows(rows);
-      renderDashboard(dashboardData, "issueList");
       return;
     }
 
@@ -1543,21 +1567,7 @@ function normalizePlatform(value) {
 }
 
 function normalizeStatuses(value) {
-  const raw = String(value || "");
-  const pieces = raw
-    .split(/[,\|/]/)
-    .map((s) => s.trim())
-    .filter(Boolean);
-  const out = [];
-  pieces.forEach((p) => {
-    const key = p.toLowerCase();
-    if (key === "open" && !out.includes("Open")) out.push("Open");
-    if (key === "closed" && !out.includes("Closed")) out.push("Closed");
-    if ((key === "in progress" || key === "inprogress" || key === "in-progress") && !out.includes("In Progress")) out.push("In Progress");
-    if (key === "resolved" && !out.includes("Resolved")) out.push("Resolved");
-  });
-  if (!out.length) return "Open";
-  return out.join(", ");
+  return normalizeIssueStatus(value);
 }
 
 function parseImportedIssueRows(jsonRows) {

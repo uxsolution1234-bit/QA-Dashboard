@@ -1,4 +1,4 @@
-<!doctype html>
+﻿<!doctype html>
 <html lang="ko">
   <head>
     <meta charset="UTF-8" />
@@ -40,6 +40,7 @@
               <div class="status-check-group">
                 <label class="status-option open"><input type="checkbox" name="issueStatusMulti" value="Open" /> Open</label>
                 <label class="status-option closed"><input type="checkbox" name="issueStatusMulti" value="Closed" /> Closed</label>
+                <label class="status-option in-progress"><input type="checkbox" name="issueStatusMulti" value="In Progress" /> In Progress</label>
                 <label class="status-option resolved"><input type="checkbox" name="issueStatusMulti" value="Resolved" /> Resolved</label>
               </div>
             </div>
@@ -64,7 +65,16 @@
           <textarea class="jira-input jira-textarea hidden" name="description" required></textarea>
 
           <label class="jira-label">Attachments</label>
+          <input class="jira-input hidden" id="detailAttachmentInput" type="file" accept="image/*,video/*,.log,.txt,.json,.csv,text/plain" multiple />
+          <div id="detailAttachmentHint" class="attachment-hint hidden"></div>
           <div id="attachmentPreviewList" class="attachment-preview-list"></div>
+
+          <label class="jira-label">Comments</label>
+          <div class="comment-input-row">
+            <textarea id="commentInput" class="jira-input comment-input" placeholder="Write a comment"></textarea>
+            <button id="commentAddBtn" class="entry-btn" type="button">Add Comment</button>
+          </div>
+          <div id="commentList" class="comment-list"></div>
 
           <div class="jira-actions">
             <a id="cancelBtn" class="entry-btn secondary" href="./index.html#issueList">Cancel</a>
@@ -76,3 +86,4 @@
     <script src="./issue-detail.js"></script>
   </body>
 </html>
+

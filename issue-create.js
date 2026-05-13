@@ -47,10 +47,10 @@ const attachmentHint = document.getElementById("attachmentHint");
 attachmentInput.addEventListener("change", () => {
   const files = Array.from(attachmentInput.files || []);
   if (!files.length) {
-    attachmentHint.textContent = "No file selected";
+    if (attachmentHint) attachmentHint.textContent = "";
     return;
   }
-  attachmentHint.textContent = `${files.length} file(s): ${files.map((f) => f.name).join(", ")}`;
+  if (attachmentHint) attachmentHint.textContent = `${files.length} file(s): ${files.map((f) => f.name).join(", ")}`;
 });
 
 document.getElementById("issueCreateForm").addEventListener("submit", async (event) => {

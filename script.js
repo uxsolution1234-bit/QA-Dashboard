@@ -717,6 +717,12 @@ function getProjectStorageMeta(project = currentProject) {
   );
 }
 
+function getIssueIdPrefix(project = currentProject) {
+  if (project === "GRID R15") return "R15";
+  if (project === "Compact 고도화") return "CMP";
+  return "ISS";
+}
+
 function toKoreanDate(isoDate) {
   return isoDate.replaceAll("-", ".");
 }
@@ -811,11 +817,13 @@ function buildDashboardWidgetsFromIssues(rows) {
 
   const statusCount = {
     Open: 0,
+    "In Progress": 0,
     Closed: 0,
     Resolved: 0,
   };
   rows.forEach((r) => {
     if (hasStatus(r.issueStatus, "open")) statusCount.Open += 1;
+    if (hasStatus(r.issueStatus, "in progress")) statusCount["In Progress"] += 1;
     if (hasStatus(r.issueStatus, "closed")) statusCount.Closed += 1;
     if (hasStatus(r.issueStatus, "resolved")) statusCount.Resolved += 1;
   });
@@ -843,6 +851,7 @@ function buildDashboardWidgetsFromIssues(rows) {
     ],
     qaStatus: [
       { label: "Open", value: statusCount.Open || 0, color: "#3f8cff" },
+      { label: "In Progress", value: statusCount["In Progress"] || 0, color: "#2f9ca3" },
       { label: "Closed", value: statusCount.Closed || 0, color: "#7f8ea3" },
       { label: "Resolved", value: statusCount.Resolved || 0, color: "#30d58f" },
     ],
@@ -886,6 +895,7 @@ function renderPlatformBreakdown(rows) {
       const medium = countImpact(filtered, "medium");
       const low = countImpact(filtered, "low");
       const open = countStatus(filtered, "open");
+      const inProgress = countStatus(filtered, "in progress");
       const closed = countStatus(filtered, "closed");
       const resolved = countStatus(filtered, "resolved");
 
@@ -901,6 +911,7 @@ function renderPlatformBreakdown(rows) {
               <div class="donut small" id="platformStatusDonut${idx}"><span>STS</span></div>
               <ul class="legend compact" id="platformStatusLegend${idx}">
                 <li><span class="dot" style="background:#3f8cff"></span>Open - ${open}</li>
+                <li><span class="dot" style="background:#2f9ca3"></span>In Progress - ${inProgress}</li>
                 <li><span class="dot" style="background:#7f8ea3"></span>Closed - ${closed}</li>
                 <li><span class="dot" style="background:#30d58f"></span>Resolved - ${resolved}</li>
               </ul>
@@ -921,6 +932,7 @@ function renderPlatformBreakdown(rows) {
     const filtered = rows.filter((r) => String(r.platform || "").toLowerCase() === platform.key);
     const data = [
       { label: "Open", value: countStatus(filtered, "open"), color: "#3f8cff" },
+      { label: "In Progress", value: countStatus(filtered, "in progress"), color: "#2f9ca3" },
       { label: "Closed", value: countStatus(filtered, "closed"), color: "#7f8ea3" },
       { label: "Resolved", value: countStatus(filtered, "resolved"), color: "#30d58f" },
     ];
@@ -930,7 +942,7 @@ function renderPlatformBreakdown(rows) {
 
 function getIssuePriority(field, value) {
   const table = {
-    issueStatus: { open: 1, closed: 2, resolved: 2 },
+    issueStatus: { open: 1, "in progress": 2, inprogress: 2, closed: 3, resolved: 4 },
     impactLevel: { high: 1, medium: 2, low: 3 },
     platform: { "feature phone": 1, "smart phone": 2, dispatcher: 3 },
   };
@@ -992,6 +1004,7 @@ function renderIssueTable(rows) {
       <tr>
         <td><input type="checkbox" class="issue-row-check" data-row-key="${escapeHtml(rowKey)}" ${checked} /></td>
         <td>${idx + 1}</td>
+        <td><a class="issue-link" href="./issue-detail.html?rowKey=${encodeURIComponent(rowKey)}&project=${encodeURIComponent(currentProject)}">${escapeHtml(String(row.issueId || "-"))}</a></td>
         <td>${escapeHtml(getRegistrationDateText(row))}</td>
         <td>${renderImpactLevelCell(row.impactLevel, escapeHtml)}</td>
         <td>${renderPlatformBadge(row.platform, escapeHtml)}</td>
@@ -1000,6 +1013,7 @@ function renderIssueTable(rows) {
         <td>${row.modifiedVersion}</td>
         <td>${renderAttachmentCell(row, escapeHtml)}</td>
         <td><a class="issue-link" href="./issue-detail.html?rowKey=${encodeURIComponent(rowKey)}&project=${encodeURIComponent(currentProject)}">${escapeHtml(row.title)}</a></td>
+        <td><a class="issue-link" href="./issue-detail.html?rowKey=${encodeURIComponent(rowKey)}&project=${encodeURIComponent(currentProject)}">Open</a></td>
         <td><button class="delete-btn" data-row-key="${escapeHtml(rowKey)}" type="button">Delete</button></td>
       </tr>
     `;
@@ -1065,10 +1079,12 @@ function renderIssueStatusBadge(status, escapeHtml, rowKey = "", removable = fal
   if (!statuses.length) return `<span class="status-badges"><span class="status-badge">-</span></span>`;
   const chips = statuses
     .map((s) => {
-      const key = s.toLowerCase();
+      const key = s.toLowerCase().replace(/\s+/g, " ").trim();
+      const compactKey = key.replace(/[\s-]+/g, "");
       let cls = "status-badge";
       if (key === "closed") cls += " closed";
       else if (key === "open") cls += " open";
+      else if (compactKey === "inprogress") cls += " in-progress";
       else if (key === "resolved") cls += " resolved";
       if (!removable) return `<span class="${cls}">${escapeHtml(s)}</span>`;
       return `
@@ -1284,8 +1300,34 @@ function resequenceRows(rows) {
   }));
 }
 
+function getIssueRegistrationTimestamp(row, idx) {
+  const dateText = String(row.date || "").trim();
+  const createdAtText = String(row.createdAt || "").trim();
+  let t = Number.NaN;
+  if (dateText) t = Date.parse(dateText);
+  if (Number.isNaN(t) && createdAtText) t = Date.parse(createdAtText);
+  if (Number.isNaN(t)) return 4102444800000 + idx; // far future fallback
+  return t;
+}
+
+function assignIssueIds(rows) {
+  const prefix = getIssueIdPrefix();
+  const bottomFirst = [...rows].reverse();
+  const idMap = new Map(
+    bottomFirst.map((row, idx) => [
+      String(row.rowKey || ""),
+      `${prefix}-${String(idx + 1).padStart(4, "0")}`,
+    ]),
+  );
+
+  return rows.map((row) => ({
+    ...row,
+    issueId: idMap.get(String(row.rowKey || "")) || row.issueId || "",
+  }));
+}
+
 function setIssueRows(rows) {
-  const normalized = resequenceRows(ensureRowKeys(rows));
+  const normalized = assignIssueIds(resequenceRows(ensureRowKeys(rows)));
   dashboardData.views.issueList.issueRows = normalized;
   const storageMeta = getProjectStorageMeta();
   localStorage.setItem(storageMeta.rows, JSON.stringify(normalized));
@@ -1445,6 +1487,7 @@ function setupExportExcel() {
     const rows = getIssueRows();
     const sheetRows = rows.map((row) => ({
       No: row.no,
+      "Issue ID": row.issueId || "",
       "Registration date": getRegistrationDateText(row),
       "Issue Status": row.issueStatus,
       "Impact Level": row.impactLevel,
@@ -1452,6 +1495,7 @@ function setupExportExcel() {
       "Affected Version": row.occurrenceVersion,
       "Fixed Version": row.modifiedVersion,
       Title: row.title,
+      "Issue Link": `./issue-detail.html?rowKey=${encodeURIComponent(String(row.rowKey || ""))}&project=${encodeURIComponent(currentProject)}`,
       URL: row.issueUrl || "",
     }));
 
@@ -1504,6 +1548,7 @@ function normalizeStatuses(value) {
     const key = p.toLowerCase();
     if (key === "open" && !out.includes("Open")) out.push("Open");
     if (key === "closed" && !out.includes("Closed")) out.push("Closed");
+    if ((key === "in progress" || key === "inprogress" || key === "in-progress") && !out.includes("In Progress")) out.push("In Progress");
     if (key === "resolved" && !out.includes("Resolved")) out.push("Resolved");
   });
   if (!out.length) return "Open";

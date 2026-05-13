@@ -29,6 +29,15 @@ function saveRows(rows) {
   localStorage.setItem(getIssueStorageKey(), JSON.stringify(rows));
 }
 
+function fileToDataUrl(file) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(String(reader.result || ""));
+    reader.onerror = reject;
+    reader.readAsDataURL(file);
+  });
+}
+
 const rowKey = params.get("rowKey");
 const form = document.getElementById("issueDetailForm");
 const editToggleBtn = document.getElementById("editToggleBtn");
@@ -36,6 +45,11 @@ const saveBtn = document.getElementById("saveBtn");
 const cancelBtn = document.getElementById("cancelBtn");
 const descriptionPreview = document.getElementById("descriptionPreview");
 const attachmentPreviewList = document.getElementById("attachmentPreviewList");
+const detailAttachmentInput = document.getElementById("detailAttachmentInput");
+const detailAttachmentHint = document.getElementById("detailAttachmentHint");
+const commentInput = document.getElementById("commentInput");
+const commentAddBtn = document.getElementById("commentAddBtn");
+const commentList = document.getElementById("commentList");
 
 const rows = loadRows();
 const current = rows.find((r) => String(r.rowKey) === String(rowKey));
@@ -45,6 +59,7 @@ if (!current) {
   window.location.href = "./index.html#issueList";
 }
 let workingAttachments = Array.isArray(current.attachments) ? [...current.attachments] : [];
+let workingComments = Array.isArray(current.comments) ? [...current.comments] : [];
 
 form.elements.title.value = current.title || "";
 form.elements.impactLevel.value = current.impactLevel || "Medium";
@@ -71,6 +86,8 @@ function setFormMode(isEditMode) {
   Array.from(form.elements).forEach((el) => {
     if (el.name === "description") return;
     if (el.type === "submit") return;
+    if (el.id === "commentInput" || el.id === "commentAddBtn") return;
+    if (el.classList?.contains("comment-edit-btn") || el.classList?.contains("comment-delete-btn")) return;
     el.disabled = !isEditMode;
   });
 
@@ -80,6 +97,9 @@ function setFormMode(isEditMode) {
   editToggleBtn.classList.toggle("hidden", isEditMode);
   cancelBtn.textContent = isEditMode ? "Cancel Edit" : "Back to List";
   attachmentPreviewList.classList.toggle("edit-mode", isEditMode);
+  detailAttachmentInput.classList.toggle("hidden", !isEditMode);
+  detailAttachmentHint.classList.toggle("hidden", !isEditMode);
+  if (!isEditMode) detailAttachmentHint.textContent = "";
 
   const statusOptions = Array.from(form.querySelectorAll(".status-check-group .status-option"));
   statusOptions.forEach((label) => {
@@ -87,6 +107,39 @@ function setFormMode(isEditMode) {
     if (!input) return;
     label.classList.toggle("hidden", !isEditMode && !input.checked);
   });
+}
+
+function escapeHtml(str) {
+  return String(str ?? "").replace(/[&<>"']/g, (s) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[s]);
+}
+
+function persistComments() {
+  const target = rows.find((r) => String(r.rowKey) === String(rowKey));
+  if (!target) return;
+  target.comments = [...workingComments];
+  target.updatedAt = new Date().toISOString();
+  saveRows(rows);
+}
+
+function renderComments() {
+  if (!workingComments.length) {
+    commentList.innerHTML = '<p class="attachment-empty">No comments yet.</p>';
+    return;
+  }
+  commentList.innerHTML = workingComments
+    .map(
+      (comment, idx) => `
+        <article class="comment-item">
+          <p class="comment-meta">${escapeHtml(comment.createdAt || "")}</p>
+          <p class="comment-body">${escapeHtml(comment.text || "")}</p>
+          <div class="comment-actions">
+            <button type="button" class="entry-btn secondary comment-edit-btn" data-comment-idx="${idx}">Edit</button>
+            <button type="button" class="entry-btn danger-btn comment-delete-btn" data-comment-idx="${idx}">Delete</button>
+          </div>
+        </article>
+      `,
+    )
+    .join("");
 }
 
 function renderDescriptionPreview() {
@@ -137,8 +190,66 @@ attachmentPreviewList.addEventListener("click", (event) => {
   if (!workingAttachments.length) attachmentPreviewList.classList.add("edit-mode");
 });
 
+detailAttachmentInput.addEventListener("change", async () => {
+  const files = Array.from(detailAttachmentInput.files || []);
+  if (!files.length) {
+    detailAttachmentHint.textContent = "";
+    return;
+  }
+  const next = await Promise.all(
+    files.map(async (file) => ({
+      name: file.name,
+      type: file.type,
+      dataUrl: await fileToDataUrl(file),
+    })),
+  );
+  workingAttachments = [...workingAttachments, ...next];
+  detailAttachmentHint.textContent = `${files.length} file(s) added`;
+  detailAttachmentInput.value = "";
+  renderAttachmentPreview(current);
+  attachmentPreviewList.classList.add("edit-mode");
+});
+
+commentAddBtn.addEventListener("click", () => {
+  const text = String(commentInput.value || "").trim();
+  if (!text) return;
+  workingComments.unshift({
+    text,
+    createdAt: new Date().toISOString().slice(0, 16).replace("T", " "),
+  });
+  commentInput.value = "";
+  renderComments();
+  persistComments();
+});
+
+commentList.addEventListener("click", (event) => {
+  const editBtn = event.target.closest(".comment-edit-btn");
+  if (editBtn) {
+    const idx = Number(editBtn.dataset.commentIdx);
+    if (Number.isNaN(idx) || !workingComments[idx]) return;
+    const next = window.prompt("Edit comment", workingComments[idx].text || "");
+    if (next === null) return;
+    const text = String(next).trim();
+    if (!text) return;
+    workingComments[idx] = { ...workingComments[idx], text };
+    renderComments();
+    persistComments();
+    return;
+  }
+
+  const deleteBtn = event.target.closest(".comment-delete-btn");
+  if (deleteBtn) {
+    const idx = Number(deleteBtn.dataset.commentIdx);
+    if (Number.isNaN(idx)) return;
+    workingComments = workingComments.filter((_, i) => i !== idx);
+    renderComments();
+    persistComments();
+  }
+});
+
 renderDescriptionPreview();
 renderAttachmentPreview(current);
+renderComments();
 setFormMode(false);
 
 form.addEventListener("submit", (event) => {
@@ -162,6 +273,7 @@ form.addEventListener("submit", (event) => {
       modifiedVersion: String(fd.get("modifiedVersion") || ""),
       description: String(fd.get("description") || "").trim(),
       attachments: workingAttachments,
+      comments: workingComments,
       updatedAt: new Date().toISOString(),
     };
   });

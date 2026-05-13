@@ -658,8 +658,8 @@ h2 {
   align-items: center;
   justify-content: center;
   position: relative;
-  min-width: 72px;
-  padding-right: 10px;
+  min-width: 96px;
+  padding-right: 16px;
 }
 
 .status-remove-btn {
@@ -710,6 +710,12 @@ h2 {
   background: #1f4d88;
   color: #d7e7ff;
   border-color: #3f78bf;
+}
+
+.status-badge.in-progress {
+  background: #1e5f63;
+  color: #d8fbff;
+  border-color: #2f9ca3;
 }
 
 .status-badge.resolved {
@@ -968,6 +974,12 @@ h3 {
   border-color: #3f78bf;
 }
 
+.status-option.in-progress {
+  background: #1e5f63;
+  color: #d8fbff;
+  border-color: #2f9ca3;
+}
+
 .status-option.resolved {
   background: #1f6a4b;
   color: #d3f7e7;
@@ -1068,6 +1080,45 @@ h3 {
 .attachment-empty {
   margin: 0;
   color: #8fa2bf;
+}
+
+.comment-input-row {
+  display: grid;
+  gap: 8px;
+}
+
+.comment-input {
+  min-height: 92px;
+  resize: vertical;
+}
+
+.comment-list {
+  display: grid;
+  gap: 10px;
+}
+
+.comment-item {
+  border: 1px solid #253a58;
+  border-radius: 10px;
+  background: #121d2f;
+  padding: 10px 12px;
+}
+
+.comment-meta {
+  margin: 0;
+  color: #8fa2bf;
+  font-size: 12px;
+}
+
+.comment-body {
+  margin: 8px 0 0;
+  white-space: pre-wrap;
+}
+
+.comment-actions {
+  margin-top: 10px;
+  display: flex;
+  gap: 8px;
 }
 
 @media (max-width: 1400px) {

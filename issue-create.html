@@ -37,6 +37,7 @@
               <div class="status-check-group">
                 <label class="status-option open"><input type="checkbox" name="issueStatusMulti" value="Open" checked /> Open</label>
                 <label class="status-option closed"><input type="checkbox" name="issueStatusMulti" value="Closed" /> Closed</label>
+                <label class="status-option in-progress"><input type="checkbox" name="issueStatusMulti" value="In Progress" /> In Progress</label>
                 <label class="status-option resolved"><input type="checkbox" name="issueStatusMulti" value="Resolved" /> Resolved</label>
               </div>
             </div>
@@ -67,7 +68,7 @@
 
           <label class="jira-label">Attachment (Image/Video/Log)</label>
           <input class="jira-input" id="attachmentInput" name="attachments" type="file" accept="image/*,video/*,.log,.txt,.json,.csv,text/plain" multiple />
-          <div id="attachmentHint" class="attachment-hint">?좏깮???뚯씪???놁뼱??</div>
+          <div id="attachmentHint" class="attachment-hint"></div>
 
           <div class="jira-actions">
             <a class="entry-btn secondary" href="./index.html#issueList">Cancel</a>
@@ -79,4 +80,5 @@
     <script src="./issue-create.js"></script>
   </body>
 </html>
+
 

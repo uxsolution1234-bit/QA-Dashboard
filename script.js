@@ -725,8 +725,18 @@ function getIssueIdPrefix(project = currentProject) {
 
 function buildIssueDetailUrl(rowKey, issueId) {
   const compactIssueId = String(issueId || "").trim();
-  if (compactIssueId) return `./issue-detail.html?issueId=${encodeURIComponent(compactIssueId)}`;
-  return `./issue-detail.html?rowKey=${encodeURIComponent(String(rowKey || ""))}`;
+  if (compactIssueId) {
+    return `./issue-detail.html?issueId=${encodeURIComponent(compactIssueId)}&project=${encodeURIComponent(currentProject)}`;
+  }
+  return `./issue-detail.html?rowKey=${encodeURIComponent(String(rowKey || ""))}&project=${encodeURIComponent(currentProject)}`;
+}
+
+function toAbsoluteUrl(relativeOrAbsolute) {
+  try {
+    return new URL(relativeOrAbsolute, window.location.href).href;
+  } catch (_) {
+    return String(relativeOrAbsolute || "");
+  }
 }
 
 function toKoreanDate(isoDate) {
@@ -1016,7 +1026,7 @@ function renderIssueTable(rows) {
           <button
             type="button"
             class="issue-id-copy-btn issue-link"
-            data-copy-link="${escapeHtml(detailUrl)}"
+            data-copy-link="${escapeHtml(toAbsoluteUrl(detailUrl))}"
             title="Copy issue link"
           >${escapeHtml(String(row.issueId || "-"))}</button>
         </td>

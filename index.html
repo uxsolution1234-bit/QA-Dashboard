@@ -79,9 +79,11 @@
         </section>
 
         <section class="list-search hidden" id="listSearchSection">
-          <input id="issueSearchInput" class="jira-input" placeholder="Search issues (title, platform, status, version)" />
-          <button id="issueSearchBtn" class="entry-btn" type="button">Search</button>
-          <button id="issueSearchResetBtn" class="entry-btn secondary" type="button">Reset</button>
+          <div class="editor-name-box">
+            <label for="editorNameInput">Editor</label>
+            <input id="editorNameInput" class="jira-input editor-name-input" placeholder="Your name" />
+            <button id="saveEditorNameBtn" class="entry-btn secondary" type="button">Save Name</button>
+          </div>
         </section>
 
         <section class="mid-grid" id="midGrid">
@@ -127,6 +129,9 @@
             <button class="entry-btn danger-btn" id="deleteSelectedBtn" type="button">Delete Selected</button>
             <button class="entry-btn secondary" id="exportExcelBtn" type="button">Download Issue List</button>
             <button class="entry-btn secondary" id="importExcelBtn" type="button">Upload Excel/CSV</button>
+            <input id="issueSearchInput" class="jira-input issue-search-input" placeholder="Search issues (title, platform, status, version)" />
+            <button id="issueSearchBtn" class="entry-btn" type="button">Search</button>
+            <button id="issueSearchResetBtn" class="entry-btn secondary" type="button">Reset</button>
             <input id="importExcelInput" type="file" accept=".xlsx,.xls,.csv" class="hidden" />
           </div>
           <div class="table-wrap">
@@ -174,6 +179,7 @@
               <tbody id="issueTableBody"></tbody>
             </table>
           </div>
+          <div class="pagination-wrap hidden" id="issuePagination"></div>
         </section>
       </main>
     </div>

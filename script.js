@@ -698,6 +698,46 @@ const INITIAL_GRID_R15_ROWS = JSON.parse(JSON.stringify(dashboardData.views.issu
 let issueSearchQuery = "";
 const selectedIssueKeys = new Set();
 let issueRowsCache = [];
+const ISSUE_PAGE_SIZE = 20;
+let currentIssuePage = 1;
+let lastIssueRowsForPaging = [];
+const EDITOR_NAME_KEY = "grid_editor_name";
+
+function getEditorName() {
+  const saved = String(localStorage.getItem(EDITOR_NAME_KEY) || "").trim();
+  return saved || "Unknown User";
+}
+
+function setEditorName(name) {
+  const safe = String(name || "").trim();
+  if (!safe) return false;
+  localStorage.setItem(EDITOR_NAME_KEY, safe);
+  return true;
+}
+
+function setupEditorNameControls() {
+  const input = document.getElementById("editorNameInput");
+  const saveBtn = document.getElementById("saveEditorNameBtn");
+  if (!input || !saveBtn) return;
+  const current = String(localStorage.getItem(EDITOR_NAME_KEY) || "").trim();
+  input.value = current;
+  saveBtn.addEventListener("click", () => {
+    if (!setEditorName(input.value)) {
+      alert("Please enter editor name.");
+      return;
+    }
+    input.value = String(localStorage.getItem(EDITOR_NAME_KEY) || "").trim();
+    alert("Editor name saved.");
+  });
+}
+
+function buildStatusHistoryComment(beforeStatus, afterStatus, editorName) {
+  return {
+    text: `[History] Issue Status changed: ${beforeStatus} -> ${afterStatus} (by ${editorName})`,
+    createdAt: new Date().toISOString().slice(0, 16).replace("T", " "),
+    system: true,
+  };
+}
 
 function getIssueIdPrefix(project = currentProject) {
   if (project === "GRID R15") return "R15";
@@ -997,12 +1037,18 @@ function syncSortArrowState() {
 }
 
 function renderIssueTable(rows) {
+  lastIssueRowsForPaging = [...rows];
   const sortedRows = sortIssueRows(rows);
+  const totalItems = sortedRows.length;
+  const totalPages = Math.max(1, Math.ceil(totalItems / ISSUE_PAGE_SIZE));
+  currentIssuePage = Math.min(Math.max(1, currentIssuePage), totalPages);
+  const startIdx = (currentIssuePage - 1) * ISSUE_PAGE_SIZE;
+  const pageRows = sortedRows.slice(startIdx, startIdx + ISSUE_PAGE_SIZE);
   const body = document.getElementById("issueTableBody");
   const escapeHtml = (str) =>
     String(str ?? "").replace(/[&<>"']/g, (s) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[s]);
 
-  body.innerHTML = sortedRows
+  body.innerHTML = pageRows
     .map(
       (row, idx) => {
         const rowKey = String(row.rowKey || "");
@@ -1012,7 +1058,7 @@ function renderIssueTable(rows) {
         return `
       <tr>
         <td><input type="checkbox" class="issue-row-check" data-row-key="${escapeHtml(rowKey)}" ${checked} /></td>
-        <td>${idx + 1}</td>
+        <td>${startIdx + idx + 1}</td>
         <td>
           <button
             type="button"
@@ -1035,10 +1081,50 @@ function renderIssueTable(rows) {
       },
       )
     .join("");
-  document.getElementById("issueTableCount").textContent = `${sortedRows.length} items`;
+  document.getElementById("issueTableCount").textContent = `${totalItems} items`;
+  renderIssuePagination(totalPages);
   syncIssueCheckAllState();
   syncSortArrowState();
   renderImpactSections(sortedRows, escapeHtml);
+}
+
+function buildPaginationItems(totalPages, currentPage) {
+  if (totalPages <= 10) return Array.from({ length: totalPages }, (_, i) => i + 1);
+  if (currentPage <= 6) return [1, 2, 3, 4, 5, 6, 7, "...", totalPages];
+  if (currentPage >= totalPages - 5) {
+    return [1, "...", totalPages - 6, totalPages - 5, totalPages - 4, totalPages - 3, totalPages - 2, totalPages - 1, totalPages];
+  }
+  return [1, "...", currentPage - 1, currentPage, currentPage + 1, "...", totalPages];
+}
+
+function renderIssuePagination(totalPages) {
+  const container = document.getElementById("issuePagination");
+  if (!container) return;
+  if (totalPages <= 1) {
+    container.classList.add("hidden");
+    container.innerHTML = "";
+    return;
+  }
+
+  const items = buildPaginationItems(totalPages, currentIssuePage);
+  const html = [];
+  html.push(
+    `<button class="page-btn nav" type="button" data-page-nav="prev" ${currentIssuePage === 1 ? "disabled" : ""} aria-label="Previous page">&#8249;</button>`,
+  );
+  items.forEach((item) => {
+    if (item === "...") {
+      html.push(`<span class="page-ellipsis">...</span>`);
+      return;
+    }
+    const pageNo = Number(item);
+    const active = pageNo === currentIssuePage ? "active" : "";
+    html.push(`<button class="page-btn ${active}" type="button" data-page="${pageNo}">${pageNo}</button>`);
+  });
+  html.push(
+    `<button class="page-btn nav" type="button" data-page-nav="next" ${currentIssuePage === totalPages ? "disabled" : ""} aria-label="Next page">&#8250;</button>`,
+  );
+  container.innerHTML = html.join("");
+  container.classList.remove("hidden");
 }
 
 function getRegistrationDateText(row) {
@@ -1401,6 +1487,7 @@ function setupProjectSelector(baseData) {
     currentProject = next;
     dataStore.setCurrentProject(next);
     issueSearchQuery = "";
+    currentIssuePage = 1;
     issueSortState.field = null;
     issueSortState.dir = null;
     await hydrateIssueRows();
@@ -1432,9 +1519,38 @@ function setupIssueSort(baseData) {
     if (!button) return;
     issueSortState.field = button.dataset.sortField;
     issueSortState.dir = button.dataset.sortDir;
+    currentIssuePage = 1;
 
     const rows = getIssueRows();
     renderIssueTable(rows);
+  });
+}
+
+function setupIssuePagination() {
+  const container = document.getElementById("issuePagination");
+  if (!container) return;
+  container.addEventListener("click", (event) => {
+    const pageBtn = event.target.closest("[data-page]");
+    if (pageBtn) {
+      const pageNo = Number(pageBtn.dataset.page);
+      if (!Number.isNaN(pageNo) && pageNo > 0) {
+        currentIssuePage = pageNo;
+        renderIssueTable(lastIssueRowsForPaging);
+      }
+      return;
+    }
+
+    const navBtn = event.target.closest("[data-page-nav]");
+    if (!navBtn) return;
+    if (navBtn.dataset.pageNav === "prev" && currentIssuePage > 1) {
+      currentIssuePage -= 1;
+      renderIssueTable(lastIssueRowsForPaging);
+      return;
+    }
+    if (navBtn.dataset.pageNav === "next") {
+      currentIssuePage += 1;
+      renderIssueTable(lastIssueRowsForPaging);
+    }
   });
 }
 
@@ -1468,7 +1584,15 @@ function setupIssueDelete() {
       const rowKey = String(target.dataset.rowKey || "");
       const nextStatus = normalizeIssueStatus(target.value);
       if (!rowKey) return;
-      const rows = getIssueRows().map((row) => (String(row.rowKey || "") === rowKey ? { ...row, issueStatus: nextStatus } : row));
+      const editorName = getEditorName();
+      const rows = getIssueRows().map((row) => {
+        if (String(row.rowKey || "") !== rowKey) return row;
+        const beforeStatus = normalizeIssueStatus(row.issueStatus);
+        if (beforeStatus === nextStatus) return row;
+        const comments = Array.isArray(row.comments) ? [...row.comments] : [];
+        comments.unshift(buildStatusHistoryComment(beforeStatus, nextStatus, editorName));
+        return { ...row, issueStatus: nextStatus, comments, updatedAt: new Date().toISOString() };
+      });
       await setIssueRows(rows);
       renderDashboard(dashboardData, "issueList");
     }
@@ -1674,6 +1798,7 @@ function setupImportExcel() {
       issueSortState.field = null;
       issueSortState.dir = null;
       issueSearchQuery = "";
+      currentIssuePage = 1;
       renderDashboard(dashboardData, "issueList");
       const addedCount =
         normalizedMode === "replace"
@@ -1699,6 +1824,7 @@ function setupIssueSearch(baseData) {
 
   const runSearch = () => {
     issueSearchQuery = input.value || "";
+    currentIssuePage = 1;
     if (currentView === "issueList") renderDashboard(baseData, "issueList");
   };
 
@@ -1712,6 +1838,7 @@ function setupIssueSearch(baseData) {
   resetBtn.addEventListener("click", () => {
     input.value = "";
     issueSearchQuery = "";
+    currentIssuePage = 1;
     if (currentView === "issueList") renderDashboard(baseData, "issueList");
   });
 }
@@ -1741,11 +1868,13 @@ async function initializeApp() {
   setupMenu(dashboardData);
   setupProjectSelector(dashboardData);
   setupIssueSort(dashboardData);
+  setupIssuePagination();
   setupKpiScroll();
   setupIssueDelete();
   setupExportExcel();
   setupImportExcel();
   setupIssueSearch(dashboardData);
+  setupEditorNameControls();
 
   await hydrateIssueRows();
   lastRemoteUpdatedAt = await dataStore.getRemoteUpdatedAt(currentProject);

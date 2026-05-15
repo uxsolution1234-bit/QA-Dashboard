@@ -46,6 +46,7 @@ let workingAttachments = [];
 let workingComments = [];
 let isEditMode = false;
 let lastRemoteUpdatedAt = null;
+const EDITOR_NAME_KEY = "grid_editor_name";
 
 function parseStatuses(raw) {
   return String(raw || "")
@@ -61,6 +62,19 @@ function normalizeIssueStatus(raw) {
   if (statuses.includes("closed")) return "Closed";
   if (statuses.includes("resolved")) return "Resolved";
   return "Open";
+}
+
+function getEditorName() {
+  const saved = String(localStorage.getItem(EDITOR_NAME_KEY) || "").trim();
+  return saved || "Unknown User";
+}
+
+function buildStatusHistoryComment(beforeStatus, afterStatus, editorName) {
+  return {
+    text: `[History] Issue Status changed: ${beforeStatus} -> ${afterStatus} (by ${editorName})`,
+    createdAt: new Date().toISOString().slice(0, 16).replace("T", " "),
+    system: true,
+  };
 }
 
 function applyStatusSelectClass(selectEl) {
@@ -108,18 +122,23 @@ function renderComments() {
     return;
   }
   commentList.innerHTML = workingComments
-    .map(
-      (comment, idx) => `
-        <article class="comment-item">
-          <p class="comment-meta">${escapeHtml(comment.createdAt || "")}</p>
-          <p class="comment-body">${escapeHtml(comment.text || "")}</p>
+    .map((comment, idx) => {
+      const actionButtons = comment?.system
+        ? ""
+        : `
           <div class="comment-actions">
             <button type="button" class="entry-btn secondary comment-edit-btn" data-comment-idx="${idx}">Edit</button>
             <button type="button" class="entry-btn danger-btn comment-delete-btn" data-comment-idx="${idx}">Delete</button>
           </div>
+        `;
+      return `
+        <article class="comment-item">
+          <p class="comment-meta">${escapeHtml(comment.createdAt || "")}</p>
+          <p class="comment-body">${escapeHtml(comment.text || "")}</p>
+          ${actionButtons}
         </article>
-      `,
-    )
+      `;
+    })
     .join("");
 }
 
@@ -277,6 +296,7 @@ commentList.addEventListener("click", async (event) => {
   if (editBtn) {
     const idx = Number(editBtn.dataset.commentIdx);
     if (Number.isNaN(idx) || !workingComments[idx]) return;
+    if (workingComments[idx]?.system) return;
     const next = window.prompt("Edit comment", workingComments[idx].text || "");
     if (next === null) return;
     const text = String(next).trim();
@@ -291,6 +311,7 @@ commentList.addEventListener("click", async (event) => {
   if (deleteBtn) {
     const idx = Number(deleteBtn.dataset.commentIdx);
     if (Number.isNaN(idx)) return;
+    if (workingComments[idx]?.system) return;
     workingComments = workingComments.filter((_, i) => i !== idx);
     renderComments();
     await persistComments();
@@ -300,6 +321,15 @@ commentList.addEventListener("click", async (event) => {
 form.addEventListener("submit", async (event) => {
   event.preventDefault();
   const fd = new FormData(form);
+  const nextStatus = normalizeIssueStatus(String(fd.get("issueStatus") || "Open"));
+  const beforeStatus = normalizeIssueStatus(current.issueStatus || "Open");
+  let nextComments = [...workingComments];
+  if (beforeStatus !== nextStatus) {
+    const editorName = getEditorName();
+    nextComments.unshift(buildStatusHistoryComment(beforeStatus, nextStatus, editorName));
+    workingComments = [...nextComments];
+    renderComments();
+  }
 
   const nextRows = rows.map((row) => {
     if (String(row.rowKey || "") !== String(current.rowKey || "")) return row;
@@ -307,13 +337,13 @@ form.addEventListener("submit", async (event) => {
       ...row,
       title: String(fd.get("title") || "").trim(),
       impactLevel: String(fd.get("impactLevel") || "Medium"),
-      issueStatus: normalizeIssueStatus(String(fd.get("issueStatus") || "Open")),
+      issueStatus: nextStatus,
       platform: String(fd.get("platform") || "Dispatcher"),
       occurrenceVersion: String(fd.get("occurrenceVersion") || ""),
       modifiedVersion: String(fd.get("modifiedVersion") || ""),
       description: String(fd.get("description") || "").trim(),
       attachments: workingAttachments,
-      comments: workingComments,
+      comments: nextComments,
       updatedAt: new Date().toISOString(),
     };
   });

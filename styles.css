@@ -627,6 +627,10 @@ h2 {
   min-width: 980px;
 }
 
+.issue-row-clickable {
+  cursor: pointer;
+}
+
 .issue-table thead th {
   text-align: left;
   padding: 12px 14px;
@@ -1266,6 +1270,30 @@ h3 {
 .comment-body {
   margin: 8px 0 0;
   white-space: pre-wrap;
+}
+
+.status-history-line {
+  margin-top: 8px;
+  display: inline-flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 7px;
+  color: #d9e7fb;
+}
+
+.history-label,
+.history-by {
+  color: #9db0cb;
+  font-size: 13px;
+}
+
+.history-label {
+  font-weight: 800;
+}
+
+.history-arrow {
+  color: #9db0cb;
+  font-weight: 700;
 }
 
 .comment-actions {

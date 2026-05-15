@@ -734,6 +734,10 @@ function setupEditorNameControls() {
 function buildStatusHistoryComment(beforeStatus, afterStatus, editorName) {
   return {
     text: `[History] Issue Status changed: ${beforeStatus} -> ${afterStatus} (by ${editorName})`,
+    type: "status_change",
+    beforeStatus,
+    afterStatus,
+    editorName,
     createdAt: new Date().toISOString().slice(0, 16).replace("T", " "),
     system: true,
   };
@@ -1056,7 +1060,7 @@ function renderIssueTable(rows) {
         const issueId = String(row.issueId || "");
         const detailUrl = buildIssueDetailUrl(rowKey, issueId);
         return `
-      <tr>
+      <tr class="issue-row-clickable" data-detail-url="${escapeHtml(detailUrl)}">
         <td><input type="checkbox" class="issue-row-check" data-row-key="${escapeHtml(rowKey)}" ${checked} /></td>
         <td>${startIdx + idx + 1}</td>
         <td>
@@ -1074,7 +1078,7 @@ function renderIssueTable(rows) {
         <td>${row.occurrenceVersion}</td>
         <td>${row.modifiedVersion}</td>
         <td>${renderAttachmentCell(row, escapeHtml)}</td>
-        <td><a class="issue-link" href="${detailUrl}">${escapeHtml(row.title)}</a></td>
+        <td><span class="issue-title-text">${escapeHtml(row.title)}</span></td>
         <td><button class="delete-btn" data-row-key="${escapeHtml(rowKey)}" type="button">Delete</button></td>
       </tr>
     `;
@@ -1634,6 +1638,20 @@ function setupIssueDelete() {
   });
 }
 
+function setupIssueRowNavigation() {
+  const body = document.getElementById("issueTableBody");
+  if (!body) return;
+  body.addEventListener("click", (event) => {
+    const interactive = event.target.closest("a, button, input, select, textarea, label");
+    if (interactive) return;
+    const row = event.target.closest("tr[data-detail-url]");
+    if (!row) return;
+    const url = String(row.dataset.detailUrl || "").trim();
+    if (!url) return;
+    window.location.href = url;
+  });
+}
+
 function setupExportExcel() {
   const btn = document.getElementById("exportExcelBtn");
   btn.addEventListener("click", () => {
@@ -1871,6 +1889,7 @@ async function initializeApp() {
   setupIssuePagination();
   setupKpiScroll();
   setupIssueDelete();
+  setupIssueRowNavigation();
   setupExportExcel();
   setupImportExcel();
   setupIssueSearch(dashboardData);

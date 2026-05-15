@@ -72,8 +72,38 @@ function getEditorName() {
 function buildStatusHistoryComment(beforeStatus, afterStatus, editorName) {
   return {
     text: `[History] Issue Status changed: ${beforeStatus} -> ${afterStatus} (by ${editorName})`,
+    type: "status_change",
+    beforeStatus,
+    afterStatus,
+    editorName,
     createdAt: new Date().toISOString().slice(0, 16).replace("T", " "),
     system: true,
+  };
+}
+
+function getStatusChipClass(status) {
+  const normalized = normalizeIssueStatus(status).toLowerCase();
+  if (normalized === "open") return "open";
+  if (normalized === "closed") return "closed";
+  if (normalized === "resolved") return "resolved";
+  if (normalized === "in progress") return "in-progress";
+  return "";
+}
+
+function renderStatusChip(status) {
+  const safeStatus = normalizeIssueStatus(status);
+  const cls = getStatusChipClass(safeStatus);
+  return `<span class="status-badge ${cls}">${escapeHtml(safeStatus)}</span>`;
+}
+
+function parseStatusHistoryText(text) {
+  const raw = String(text || "");
+  const matched = raw.match(/\[History\]\s*Issue Status changed:\s*(.*?)\s*->\s*(.*?)\s*\(by\s*(.*?)\)/i);
+  if (!matched) return null;
+  return {
+    beforeStatus: normalizeIssueStatus(matched[1]),
+    afterStatus: normalizeIssueStatus(matched[2]),
+    editorName: String(matched[3] || "").trim() || "Unknown User",
   };
 }
 
@@ -123,6 +153,25 @@ function renderComments() {
   }
   commentList.innerHTML = workingComments
     .map((comment, idx) => {
+      const history =
+        comment?.system && comment?.type === "status_change"
+          ? {
+              beforeStatus: normalizeIssueStatus(comment.beforeStatus),
+              afterStatus: normalizeIssueStatus(comment.afterStatus),
+              editorName: String(comment.editorName || "").trim() || "Unknown User",
+            }
+          : comment?.system
+          ? parseStatusHistoryText(comment.text)
+          : null;
+      const bodyHtml = history
+        ? `<div class="status-history-line">
+             <span class="history-label">[History] Issue Status changed:</span>
+             ${renderStatusChip(history.beforeStatus)}
+             <span class="history-arrow">&#8594;</span>
+             ${renderStatusChip(history.afterStatus)}
+             <span class="history-by">(by ${escapeHtml(history.editorName)})</span>
+           </div>`
+        : `<p class="comment-body">${escapeHtml(comment.text || "")}</p>`;
       const actionButtons = comment?.system
         ? ""
         : `
@@ -134,7 +183,7 @@ function renderComments() {
       return `
         <article class="comment-item">
           <p class="comment-meta">${escapeHtml(comment.createdAt || "")}</p>
-          <p class="comment-body">${escapeHtml(comment.text || "")}</p>
+          ${bodyHtml}
           ${actionButtons}
         </article>
       `;
